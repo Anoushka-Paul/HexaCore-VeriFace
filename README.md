@@ -69,3 +69,25 @@ Identifying a suspect or a missing person today often means manually paging thro
 - Real-time (live) CCTV stream processing
 - End-to-end encryption for stored biometric data and full RBAC
 - Formal bias/fairness evaluation across demographic groups
+
+## Production Considerations
+
+This is a hackathon prototype, built to prove the core concept works end to
+end. A real deployment would require additional work in these areas:
+
+- **Metadata storage**: SQLite is used here for simplicity. Production would
+  use PostgreSQL for the audit log, case records, and person metadata, with
+  proper indexing and backup/replication.
+- **Vector search at scale**: FAISS's flat index works well at hundreds of
+  faces but doesn't scale efficiently to millions. A production system would
+  use a managed vector database (e.g. Pinecone, Milvus, or Postgres with
+  pgvector) with approximate nearest-neighbor indexing.
+- **Scalability**: Load balancing and async processing for concurrent
+  officers submitting searches simultaneously, especially for CCTV video
+  processing which is compute-intensive.
+- **Bias & fairness auditing**: A formal accuracy evaluation across
+  demographic groups before any real-world use, given known disparities in
+  face recognition accuracy.
+
+These were consciously deprioritized to focus build time on validating the
+core recognition pipeline, confidence scoring, and audit logging first.
