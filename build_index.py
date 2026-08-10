@@ -22,34 +22,49 @@ Usage:
 import argparse
 import json
 import os
+from pathlib import Path
 
 import cv2
 import faiss
 import numpy as np
-from insightface.app import FaceAnalysis
+
+from face_utils import create_face_app, normalize_embedding, validate_single_face
 
 
-def parse_filename(filename: str):
-    """Splits 'personID_name.jpg' into (person_id, name)."""
-    stem = os.path.splitext(filename)[0]
+def parse_identity(label: str):
+    """Splits 'personID_name' into (person_id, name)."""
+    stem = os.path.splitext(label)[0]
     parts = stem.split("_", 1)
     person_id = parts[0]
     name = parts[1].replace("_", " ") if len(parts) > 1 else parts[0]
     return person_id, name
 
 
+def identity_for_path(path: Path, input_path: Path) -> tuple[str, str]:
+    """Support legacy flat files and preferred per-person reference folders.
+
+    Preferred: dataset/001_Jane_Doe/reference_01.jpg
+    Legacy:    dataset/001_Jane_Doe.jpg
+    Flat multi-reference files may use: 001_Jane_Doe__02.jpg
+    """
+    if path.parent != input_path:
+        return parse_identity(path.parent.name)
+    return parse_identity(path.stem.split("__", 1)[0])
+
+
 def build_index(input_dir: str, output_index: str, output_map: str):
     print("Loading insightface model...")
-    app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
-    app.prepare(ctx_id=0, det_size=(160, 160))
+    app = create_face_app()
 
     embeddings = []
     mapping = []
     skipped = []
+    canonical_ids_by_name = {}
 
+    input_path = Path(input_dir)
     image_files = sorted(
-        f for f in os.listdir(input_dir)
-        if f.lower().endswith((".jpg", ".jpeg", ".png"))
+        path for path in input_path.rglob("*")
+        if path.is_file() and path.suffix.lower() in (".jpg", ".jpeg", ".png")
     )
 
     if not image_files:
@@ -57,37 +72,39 @@ def build_index(input_dir: str, output_index: str, output_map: str):
 
     print(f"Found {len(image_files)} images. Processing...")
 
-    for filename in image_files:
-        path = os.path.join(input_dir, filename)
-        img = cv2.imread(path)
+    for path in image_files:
+        relative_path = path.relative_to(input_path).as_posix()
+        img = cv2.imread(str(path))
 
         if img is None:
-            skipped.append((filename, "could not read image file"))
+            skipped.append((relative_path, "could not read image file"))
             continue
 
-        faces = app.get(img)
-
-        if len(faces) == 0:
-            skipped.append((filename, "no face detected"))
+        face, reason = validate_single_face(app.get(img))
+        if reason:
+            skipped.append((relative_path, reason))
             continue
 
-        # If multiple faces are found in a reference image, use the
-        # largest one (most likely the intended subject).
-        face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
-
-        embedding = face.embedding.astype("float32")
+        embedding = normalize_embedding(face.embedding)[0]
         embeddings.append(embedding)
 
-        person_id, name = parse_filename(filename)
-        mapping.append({"person_id": person_id, "name": name, "filename": filename})
+        source_person_id, name = identity_for_path(path, input_path)
+        # The legacy LFW demo files assign a different sequential ID to every
+        # image. Consolidate repeated names into one identity while retaining
+        # each image as a separate FAISS reference vector.
+        name_key = name.casefold()
+        person_id = canonical_ids_by_name.setdefault(name_key, source_person_id)
+        mapping.append({
+            "person_id": person_id,
+            "name": name,
+            "filename": relative_path,
+            "source_person_id": source_person_id,
+        })
 
     if not embeddings:
         raise SystemExit("No embeddings were extracted — nothing to index.")
 
     embeddings = np.vstack(embeddings)
-
-    # Normalize so IndexFlatIP (inner product) behaves like cosine similarity
-    faiss.normalize_L2(embeddings)
 
     dim = embeddings.shape[1]
     index = faiss.IndexFlatIP(dim)
@@ -97,7 +114,7 @@ def build_index(input_dir: str, output_index: str, output_map: str):
     with open(output_map, "w") as f:
         json.dump(mapping, f, indent=2)
 
-    print(f"\nIndexed {len(mapping)} faces ({dim}-dim embeddings).")
+    print(f"\nIndexed {len(mapping)} reference faces for {len({entry['person_id'] for entry in mapping})} people ({dim}-dim embeddings).")
     print(f"Saved index -> {output_index}")
     print(f"Saved mapping -> {output_map}")
 

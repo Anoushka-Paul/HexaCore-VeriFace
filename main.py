@@ -4,7 +4,8 @@ main.py
 FastAPI backend for VeriFace face search, with a SQLite audit trail.
 Loads a prebuilt FAISS index + mapping file at startup, exposes:
     POST /search      - upload an image, get top-5 matches, logs the search
-    POST /add-person   - add a new person to the database (embeds + appends to FAISS)
+    POST /add-person   - add a person or another reference image for one
+    POST /cctv-scan    - scan uploaded video and return review artifacts
     GET  /audit        - view the full search audit log
     GET  /health        - basic status check
 
@@ -15,6 +16,9 @@ Run with:
 import json
 import os
 import sqlite3
+import uuid
+from pathlib import Path
+from threading import Lock
 from datetime import datetime, timezone
 
 import cv2
@@ -22,7 +26,10 @@ import faiss
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from insightface.app import FaceAnalysis
+from cctv_scan import run_cctv_scan
+from face_utils import DET_SIZE, MODEL_NAME, create_face_app, normalize_embedding, validate_single_face
 
 # Paths are resolved relative to this file's location, not the current
 # working directory — so `uvicorn` works the same regardless of which
@@ -31,9 +38,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_PATH = os.path.join(BASE_DIR, "face_index.faiss")
 MAPPING_PATH = os.path.join(BASE_DIR, "face_mapping.json")
 DB_PATH = os.path.join(BASE_DIR, "audit.db")
+JOBS_DIR = Path(BASE_DIR) / "cctv_jobs"
 
-DET_SIZE = (160, 160)  # small det_size works better for tightly-cropped face images
 TOP_K = 5
+MIN_CANDIDATE_SIMILARITY = 0.50
 
 app = FastAPI(title="VeriFace Search API")
 
@@ -52,6 +60,7 @@ app.add_middleware(
 face_app: FaceAnalysis | None = None
 index: faiss.Index | None = None
 mapping: list[dict] | None = None
+index_lock = Lock()
 
 
 def init_db():
@@ -97,13 +106,28 @@ def save_index_and_mapping():
         json.dump(mapping, f, indent=2)
 
 
+def job_directory(job_id: str) -> Path:
+    if len(job_id) != 32 or any(char not in "0123456789abcdef" for char in job_id):
+        raise HTTPException(status_code=404, detail="CCTV job not found")
+    path = JOBS_DIR / job_id
+    if not path.is_dir():
+        raise HTTPException(status_code=404, detail="CCTV job not found")
+    return path
+
+
+async def persist_upload(upload: UploadFile, destination: Path) -> None:
+    contents = await upload.read()
+    if not contents:
+        raise HTTPException(status_code=422, detail=f"'{upload.filename}' is empty")
+    destination.write_bytes(contents)
+
+
 @app.on_event("startup")
 def load_resources():
     global face_app, index, mapping
 
     print("Loading insightface model...")
-    face_app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
-    face_app.prepare(ctx_id=0, det_size=DET_SIZE)
+    face_app = create_face_app()
 
     print(f"Loading FAISS index from {INDEX_PATH}...")
     index = faiss.read_index(INDEX_PATH)
@@ -127,6 +151,31 @@ def confidence_label(similarity: float) -> str:
         return "no match"
 
 
+def serialize_results(query_embedding: np.ndarray) -> list[dict]:
+    """Group all exact FAISS reference scores into one candidate per person."""
+    similarities, indices = index.search(query_embedding, index.ntotal)
+    people: dict[str, dict] = {}
+    for similarity, idx in zip(similarities[0], indices[0]):
+        if idx == -1:
+            continue
+        entry = mapping[idx]
+        sim = float(similarity)
+        person = people.setdefault(entry["person_id"], {
+            "person_id": entry["person_id"], "name": entry["name"],
+            "similarity": sim, "best_reference": entry["filename"], "reference_count": 0,
+        })
+        person["reference_count"] += 1
+        if sim > person["similarity"]:
+            person["similarity"] = sim
+            person["best_reference"] = entry["filename"]
+    ranked = sorted(people.values(), key=lambda person: person["similarity"], reverse=True)[:TOP_K]
+    for person in ranked:
+        person["similarity"] = round(person["similarity"], 4)
+        person["confidence"] = confidence_label(person["similarity"])
+        person["review_recommended"] = person["similarity"] >= MIN_CANDIDATE_SIMILARITY
+    return ranked
+
+
 @app.post("/search")
 async def search(file: UploadFile = File(...)):
     if index is None or mapping is None or face_app is None:
@@ -139,32 +188,12 @@ async def search(file: UploadFile = File(...)):
     if img is None:
         raise HTTPException(status_code=400, detail="Could not read uploaded file as an image")
 
-    faces = face_app.get(img)
-
-    if len(faces) == 0:
+    face, reason = validate_single_face(face_app.get(img))
+    if reason:
         log_search(file.filename, None)  # still log failed searches for the audit trail
-        raise HTTPException(status_code=422, detail="No face detected in uploaded image")
-
-    # if multiple faces in the query image, use the largest one
-    face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
-    query_embedding = face.embedding.astype("float32").reshape(1, -1)
-    faiss.normalize_L2(query_embedding)
-
-    k = min(TOP_K, index.ntotal)
-    similarities, indices = index.search(query_embedding, k)
-
-    results = []
-    for similarity, idx in zip(similarities[0], indices[0]):
-        if idx == -1:
-            continue
-        entry = mapping[idx]
-        sim = float(similarity)
-        results.append({
-            "person_id": entry["person_id"],
-            "name": entry["name"],
-            "similarity": round(sim, 4),
-            "confidence": confidence_label(sim),
-        })
+        raise HTTPException(status_code=422, detail=reason)
+    query_embedding = normalize_embedding(face.embedding)
+    results = serialize_results(query_embedding)
 
     log_search(file.filename, results[0] if results else None)
 
@@ -178,16 +207,11 @@ async def add_person(
     file: UploadFile = File(...),
 ):
     """
-    Adds a new person to the searchable database: embeds the uploaded photo
-    and appends it to the live FAISS index + mapping, then persists both to
-    disk so the addition survives a server restart.
+    Adds a new reference to a person. Reusing an existing person_id is allowed
+    when the name matches, so each person can have several reference images.
     """
     if index is None or mapping is None or face_app is None:
         raise HTTPException(status_code=503, detail="Server not ready yet")
-
-    # prevent duplicate IDs so the mapping stays unambiguous
-    if any(entry["person_id"] == person_id for entry in mapping):
-        raise HTTPException(status_code=409, detail=f"person_id '{person_id}' already exists")
 
     contents = await file.read()
     file_bytes = np.frombuffer(contents, dtype=np.uint8)
@@ -196,30 +220,101 @@ async def add_person(
     if img is None:
         raise HTTPException(status_code=400, detail="Could not read uploaded file as an image")
 
-    faces = face_app.get(img)
-
-    if len(faces) == 0:
-        raise HTTPException(status_code=422, detail="No face detected in uploaded image")
-
-    face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
-    embedding = face.embedding.astype("float32").reshape(1, -1)
-    faiss.normalize_L2(embedding)
-
-    index.add(embedding)
-    mapping.append({
-        "person_id": person_id,
-        "name": name,
-        "filename": file.filename,
-    })
-
-    save_index_and_mapping()
+    face, reason = validate_single_face(face_app.get(img))
+    if reason:
+        raise HTTPException(status_code=422, detail=reason)
+    embedding = normalize_embedding(face.embedding)
+    # Keep the vector index and its positional mapping atomically aligned.
+    with index_lock:
+        existing = [entry for entry in mapping if entry["person_id"] == person_id]
+        if existing and any(entry["name"].casefold() != name.casefold() for entry in existing):
+            raise HTTPException(status_code=409, detail=f"person_id '{person_id}' already belongs to '{existing[0]['name']}'")
+        index.add(embedding)
+        mapping.append({
+            "person_id": person_id,
+            "name": name,
+            "filename": file.filename,
+        })
+        save_index_and_mapping()
 
     return {
-        "status": "added",
+        "status": "reference_added" if existing else "person_added",
         "person_id": person_id,
         "name": name,
-        "total_people_in_database": index.ntotal,
+        "total_people_in_database": len({entry["person_id"] for entry in mapping}),
+        "total_reference_images": index.ntotal,
+        "reference_count_for_person": len(existing) + 1,
     }
+
+
+@app.post("/cctv-scan")
+async def cctv_scan(
+    video: UploadFile = File(..., description="Recorded CCTV video, such as MP4"),
+    target: UploadFile = File(..., description="Clear reference photo of the target"),
+    camera_id: str = Form("cam_1"),
+    interval: float = Form(0.5),
+    threshold: float = Form(0.45),
+):
+    """Scan one uploaded video and return candidate frames/events plus review artifacts."""
+    if interval <= 0 or not 0 <= threshold <= 1:
+        raise HTTPException(status_code=422, detail="interval must be positive and threshold must be between 0 and 1")
+    video_suffix = Path(video.filename or "video.mp4").suffix.lower()
+    target_suffix = Path(target.filename or "target.jpg").suffix.lower()
+    if video_suffix not in {".mp4", ".avi", ".mov", ".mkv"}:
+        raise HTTPException(status_code=415, detail="Unsupported video format; use MP4, AVI, MOV, or MKV")
+    if target_suffix not in {".jpg", ".jpeg", ".png"}:
+        raise HTTPException(status_code=415, detail="Target image must be JPG, JPEG, or PNG")
+
+    job_id = uuid.uuid4().hex
+    job_dir = JOBS_DIR / job_id
+    evidence_dir = job_dir / "evidence"
+    job_dir.mkdir(parents=True, exist_ok=False)
+    video_path, target_path = job_dir / f"source{video_suffix}", job_dir / f"target{target_suffix}"
+    await persist_upload(video, video_path)
+    await persist_upload(target, target_path)
+    try:
+        results = run_cctv_scan(
+            str(video_path), str(target_path), camera_id, interval, threshold,
+            str(evidence_dir), str(job_dir / "review.mp4"),
+        )
+    except (SystemExit, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    evidence_urls = [f"/cctv-jobs/{job_id}/evidence/{match['evidence_image']}" for match in results["matches"]]
+    results["input"]["video"] = video.filename
+    results["artifacts"] = {
+        "results_url": f"/cctv-jobs/{job_id}/results",
+        "review_video_url": f"/cctv-jobs/{job_id}/review-video",
+        "evidence_urls": evidence_urls,
+    }
+    (job_dir / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
+    return {"job_id": job_id, "status": "complete", **results}
+
+
+@app.get("/cctv-jobs/{job_id}/results")
+def get_cctv_results(job_id: str):
+    result_path = job_directory(job_id) / "results.json"
+    if not result_path.is_file():
+        raise HTTPException(status_code=404, detail="CCTV results not found")
+    return json.loads(result_path.read_text(encoding="utf-8"))
+
+
+@app.get("/cctv-jobs/{job_id}/review-video")
+def get_cctv_review_video(job_id: str):
+    review_path = job_directory(job_id) / "review.mp4"
+    if not review_path.is_file():
+        raise HTTPException(status_code=404, detail="Annotated review video not found")
+    return FileResponse(review_path, media_type="video/mp4", filename=f"cctv_review_{job_id}.mp4")
+
+
+@app.get("/cctv-jobs/{job_id}/evidence/{filename}")
+def get_cctv_evidence(job_id: str, filename: str):
+    if Path(filename).name != filename:
+        raise HTTPException(status_code=404, detail="Evidence image not found")
+    evidence_path = job_directory(job_id) / "evidence" / filename
+    if not evidence_path.is_file():
+        raise HTTPException(status_code=404, detail="Evidence image not found")
+    return FileResponse(evidence_path, media_type="image/jpeg", filename=filename)
 
 
 @app.get("/audit")
@@ -239,4 +334,6 @@ def health():
     return {
         "status": "ok",
         "index_size": index.ntotal if index else 0,
+        "face_model": MODEL_NAME,
+        "detector_size": DET_SIZE,
     }

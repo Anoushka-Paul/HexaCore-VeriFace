@@ -4,90 +4,112 @@
 
 ## Overview
 
-VeriFace helps police reduce the time spent manually cross-referencing suspect sketches, photographs, or CCTV footage against existing records. An officer uploads a photo or sketch, and the system returns the closest matching faces from a database with a similarity score — flagged for human verification, never auto-confirmed. The same pipeline is reused to help locate missing persons.
-
-## Problem
-
-Identifying a suspect or a missing person today often means manually paging through physical or digital records — slow, error-prone, and hard to scale across large databases or hours of CCTV footage. VeriFace automates the *search*, while keeping the *decision* with a human officer.
+VeriFace helps police reduce the time spent manually cross-referencing suspect sketches, photographs, or CCTV footage against existing records. An officer uploads a photo or sketch, and the system returns closest candidates with a similarity score — flagged for human verification, never auto-confirmed. The same pipeline supports missing-person searches.
 
 ## Features
 
-- **Photo search** — upload a photo, get the top-5 closest matches from the database with a similarity percentage
-- **Sketch search** — upload a hand-drawn or composite sketch; the system converts it to a photo-realistic image before matching, so sketch-based leads can be searched the same way as photos
-- **CCTV scanning** — scan recorded footage from relevant cameras (e.g. stations, areas near a crime scene) for frame-level face matches against a target
-- **Missing persons mode** — same search pipeline applied against a missing-persons database
-- **Confidence-based verification** — every match is labeled *likely match / possible match / no match*; the system never auto-confirms an identity, it surfaces candidates for an officer to verify
-- **Audit trail** — every search is logged (who searched, when, what was searched, what matched) for accountability
-- **Camera map view** — CCTV matches are plotted by camera location and timestamp
+- **Photo search** — upload a photo and get the top five candidate matches.
+- **Sketch search** — sketch-to-photo conversion is being integrated by the team so generated search images can use the same face-search pipeline.
+- **CCTV scanning** — scan recorded footage for frame-level candidates, with evidence crops, timestamps, and an annotated review video.
+- **Missing persons mode** — reuse the search pipeline against a missing-persons database.
+- **Confidence-based verification** — every result remains a human-review candidate.
+- **Audit trail** — every image search is logged in SQLite.
+- **Camera map view** — CCTV matches can be plotted by camera location and timestamp as the map component is integrated.
 
 ## Architecture
 
-┌─────────────┐ ┌──────────────────┐ ┌────────────────┐
-│ Frontend │─────▶│ FastAPI Backend │─────▶│ FAISS Vector │
-│ (React) │ │ │ │ Index │
-└─────────────┘ │ - Face detection │ └────────────────┘
-│ - ArcFace embed │
-│ - Search + score │ ┌────────────────┐
-│ - Audit logging │─────▶│ SQLite │
-└──────────────────┘ │ (audit trail) │
-▲ └────────────────┘
-│
-┌────────────┴────────────┐
-│ Sketch → Photo (GAN) │
-│ CCTV Frame Scanner │
-└──────────────────────────┘
+```text
+React frontend / Sketch-to-photo module / CCTV scanner
+                     │
+                     ▼
+              FastAPI backend
+       detection + ArcFace embedding + scoring
+              │                 │
+              ▼                 ▼
+        FAISS vector index    SQLite audit log
+```
 
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Face detection & embeddings | InsightFace (ArcFace) |
-| Vector search | FAISS |
-| Sketch-to-photo conversion | Pretrained GAN (pix2pix/CycleGAN, CUFS/CUFSF-trained) |
+| Face detection & embeddings | InsightFace `buffalo_l` (ArcFace) |
+| Vector search | FAISS exact cosine search |
+| Sketch-to-photo conversion | Team-integrated pretrained GAN workflow |
 | CCTV frame processing | OpenCV |
 | Backend API | FastAPI |
 | Audit storage | SQLite |
-| Frontend | React (Vite) |
-| Map view | Leaflet + OpenStreetMap |
+| Frontend / map | React (Vite), Leaflet + OpenStreetMap |
 
-## API Endpoints
+## Setup
 
-- `POST /search` — upload an image (photo or converted sketch), returns top-5 matches with similarity % and confidence label
-- `GET /audit` — returns the full search audit log
-- `GET /cctv-results` — returns CCTV scan matches with timestamp, camera ID, and similarity %
+```powershell
+pip install -r requirements.txt
+python build_index.py --input dataset
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
-## Responsible Use & Limitations
+## Image search and multiple references
 
-- **No automated identification.** All matches are candidates for human review, not confirmed identities.
-- **Known bias risk.** Face recognition accuracy varies across demographics; the test set was chosen with this in mind, and any deployment would require a formal fairness audit before real-world use.
-- **Data sensitivity.** Biometric data requires encrypted storage and role-based access control — implemented as a design consideration in this prototype, with hardening required for production use.
-- **Prototype scope.** This was built as a hackathon proof of concept and is not deployment-ready without further security, privacy, and accuracy review.
+`POST /search` returns the nearest five **people**, not duplicate images. Each result includes the best reference image and the count of references used for that person. `POST /add-person` can create a person or add another reference by reusing the same `person_id` and name.
+
+For batch indexing, either form works:
+
+```text
+dataset/001_Jane_Doe.jpg                 # legacy: one reference
+dataset/001_Jane_Doe__02.jpg             # flat multi-reference form
+dataset/001_Jane_Doe/reference_01.jpg    # preferred multi-reference form
+dataset/001_Jane_Doe/reference_02.jpg
+```
+
+When rebuilding the legacy flat demo dataset, repeated names (for example the
+several George W. Bush images) are automatically consolidated under the first
+person ID while every image remains a separate reference vector.
+
+Reference inputs must contain exactly one sufficiently clear face. The API rejects ambiguous, tiny, and low-confidence faces rather than silently embedding them. Photo search/indexing use a 320px detector; CCTV uses 640px plus enlarged tiled recovery for wide frames.
+
+## CCTV workflow
+
+```powershell
+python create_cctv_demo.py
+python cctv_scan.py --video demo_cctv_simulated.mp4 --target demo_assets\fictional_suspect_reference.jpg --camera-id demo_corridor --interval 0.5 --threshold 0.45
+```
+
+This produces `cctv_results.json`, cropped evidence in `cctv_evidence/`, and an annotated `cctv_review.mp4`. The included footage is explicitly labelled synthetic test footage.
+
+The API accepts the same inputs:
+
+```powershell
+curl.exe -X POST http://127.0.0.1:8000/cctv-scan `
+  -F "video=@demo_cctv_simulated.mp4" `
+  -F "target=@demo_assets\fictional_suspect_reference.jpg" `
+  -F "camera_id=demo_corridor" `
+  -F "interval=0.5" `
+  -F "threshold=0.45"
+```
+
+The response contains `matches` (frame number, timestamp, score, face box), grouped `events` (`start_sec`, `end_sec`, best frame), and URLs for the saved JSON, evidence crops, and annotated MP4.
+
+## API endpoints
+
+- `POST /search` — upload a photo or an image produced by the sketch module; returns the top five people.
+- `POST /add-person` — add a new person or an additional reference image for an existing person.
+- `POST /cctv-scan` — upload CCTV video and target image; returns timestamps, candidate events, and artifact URLs.
+- `GET /cctv-jobs/{job_id}/results` — retrieve the saved scan JSON.
+- `GET /cctv-jobs/{job_id}/review-video` — download the annotated review MP4.
+- `GET /audit` — returns the image-search audit log.
+- `GET /health` — status, index size, and active model configuration.
+
+## Responsible use and production considerations
+
+- **No automated identification.** Scores are candidate leads for human verification only.
+- **Threshold calibration matters.** The `0.50` review threshold is a demo default, not an operational identity threshold.
+- **SQLite is sufficient now.** Keep SQLite for the MVP audit log and FAISS plus `face_mapping.json` for the small reference collection. Move to PostgreSQL/object storage and a managed vector service only when concurrent users, retention, backups, or collection size require it.
+- A real deployment needs role-based access, encryption, retention controls, tamper-evident logs, demographic evaluation, false-positive testing, legal review, and queued processing for long CCTV scans.
 
 ## Roadmap
 
-- Age progression modeling for long-term missing persons cases
-- Real-time (live) CCTV stream processing
-- End-to-end encryption for stored biometric data and full RBAC
-- Formal bias/fairness evaluation across demographic groups
-
-## Production Considerations
-
-This is a hackathon prototype, built to prove the core concept works end to
-end. A real deployment would require additional work in these areas:
-
-- **Metadata storage**: SQLite is used here for simplicity. Production would
-  use PostgreSQL for the audit log, case records, and person metadata, with
-  proper indexing and backup/replication.
-- **Vector search at scale**: FAISS's flat index works well at hundreds of
-  faces but doesn't scale efficiently to millions. A production system would
-  use a managed vector database (e.g. Pinecone, Milvus, or Postgres with
-  pgvector) with approximate nearest-neighbor indexing.
-- **Scalability**: Load balancing and async processing for concurrent
-  officers submitting searches simultaneously, especially for CCTV video
-  processing which is compute-intensive.
-- **Bias & fairness auditing**: A formal accuracy evaluation across
-  demographic groups before any real-world use, given known disparities in
-  face recognition accuracy.
-
-These were consciously deprioritized to focus build time on validating the
-core recognition pipeline, confidence scoring, and audit logging first.
+- Age progression modelling for long-term missing-person cases
+- Live CCTV stream processing
+- End-to-end encryption and full RBAC
+- Formal bias/fairness evaluation

@@ -2,501 +2,588 @@
   {
     "person_id": "001",
     "name": "Vicente Fox",
-    "filename": "001_Vicente_Fox.jpg"
+    "filename": "001_Vicente_Fox.jpg",
+    "source_person_id": "001"
   },
   {
     "person_id": "002",
     "name": "Paul Burrell",
-    "filename": "002_Paul_Burrell.jpg"
+    "filename": "002_Paul_Burrell.jpg",
+    "source_person_id": "002"
   },
   {
     "person_id": "003",
     "name": "Pierce Brosnan",
-    "filename": "003_Pierce_Brosnan.jpg"
+    "filename": "003_Pierce_Brosnan.jpg",
+    "source_person_id": "003"
   },
   {
     "person_id": "004",
     "name": "Bob Graham",
-    "filename": "004_Bob_Graham.jpg"
+    "filename": "004_Bob_Graham.jpg",
+    "source_person_id": "004"
   },
   {
     "person_id": "005",
     "name": "George Robertson",
-    "filename": "005_George_Robertson.jpg"
+    "filename": "005_George_Robertson.jpg",
+    "source_person_id": "005"
   },
   {
     "person_id": "006",
     "name": "Mike Weir",
-    "filename": "006_Mike_Weir.jpg"
+    "filename": "006_Mike_Weir.jpg",
+    "source_person_id": "006"
   },
   {
     "person_id": "007",
     "name": "Lance Armstrong",
-    "filename": "007_Lance_Armstrong.jpg"
+    "filename": "007_Lance_Armstrong.jpg",
+    "source_person_id": "007"
   },
   {
     "person_id": "008",
     "name": "Catherine Deneuve",
-    "filename": "008_Catherine_Deneuve.jpg"
+    "filename": "008_Catherine_Deneuve.jpg",
+    "source_person_id": "008"
   },
   {
     "person_id": "009",
     "name": "Britney Spears",
-    "filename": "009_Britney_Spears.jpg"
+    "filename": "009_Britney_Spears.jpg",
+    "source_person_id": "009"
   },
   {
     "person_id": "010",
     "name": "Jason Kidd",
-    "filename": "010_Jason_Kidd.jpg"
-  },
-  {
-    "person_id": "011",
-    "name": "Richard Myers",
-    "filename": "011_Richard_Myers.jpg"
+    "filename": "010_Jason_Kidd.jpg",
+    "source_person_id": "010"
   },
   {
     "person_id": "012",
     "name": "David Beckham",
-    "filename": "012_David_Beckham.jpg"
+    "filename": "012_David_Beckham.jpg",
+    "source_person_id": "012"
   },
   {
     "person_id": "013",
     "name": "John Stockton",
-    "filename": "013_John_Stockton.jpg"
-  },
-  {
-    "person_id": "014",
-    "name": "Luis Horna",
-    "filename": "014_Luis_Horna.jpg"
+    "filename": "013_John_Stockton.jpg",
+    "source_person_id": "013"
   },
   {
     "person_id": "015",
     "name": "Renee Zellweger",
-    "filename": "015_Renee_Zellweger.jpg"
+    "filename": "015_Renee_Zellweger.jpg",
+    "source_person_id": "015"
   },
   {
     "person_id": "016",
     "name": "Donald Rumsfeld",
-    "filename": "016_Donald_Rumsfeld.jpg"
+    "filename": "016_Donald_Rumsfeld.jpg",
+    "source_person_id": "016"
   },
   {
     "person_id": "017",
     "name": "James Wolfensohn",
-    "filename": "017_James_Wolfensohn.jpg"
+    "filename": "017_James_Wolfensohn.jpg",
+    "source_person_id": "017"
   },
   {
     "person_id": "018",
     "name": "Alejandro Toledo",
-    "filename": "018_Alejandro_Toledo.jpg"
+    "filename": "018_Alejandro_Toledo.jpg",
+    "source_person_id": "018"
   },
   {
     "person_id": "019",
     "name": "Tom Daschle",
-    "filename": "019_Tom_Daschle.jpg"
+    "filename": "019_Tom_Daschle.jpg",
+    "source_person_id": "019"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
-    "filename": "020_George_W_Bush.jpg"
+    "filename": "020_George_W_Bush.jpg",
+    "source_person_id": "020"
   },
   {
     "person_id": "021",
     "name": "Benjamin Netanyahu",
-    "filename": "021_Benjamin_Netanyahu.jpg"
+    "filename": "021_Benjamin_Netanyahu.jpg",
+    "source_person_id": "021"
   },
   {
     "person_id": "022",
     "name": "Luiz Inacio Lula da Silva",
-    "filename": "022_Luiz_Inacio_Lula_da_Silva.jpg"
+    "filename": "022_Luiz_Inacio_Lula_da_Silva.jpg",
+    "source_person_id": "022"
   },
   {
     "person_id": "023",
     "name": "Venus Williams",
-    "filename": "023_Venus_Williams.jpg"
+    "filename": "023_Venus_Williams.jpg",
+    "source_person_id": "023"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
-    "filename": "024_Colin_Powell.jpg"
+    "filename": "024_Colin_Powell.jpg",
+    "source_person_id": "024"
   },
   {
     "person_id": "025",
     "name": "Gray Davis",
-    "filename": "025_Gray_Davis.jpg"
+    "filename": "025_Gray_Davis.jpg",
+    "source_person_id": "025"
   },
   {
-    "person_id": "026",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "026_George_W_Bush.jpg"
+    "filename": "026_George_W_Bush.jpg",
+    "source_person_id": "026"
   },
   {
     "person_id": "027",
     "name": "Andre Agassi",
-    "filename": "027_Andre_Agassi.jpg"
+    "filename": "027_Andre_Agassi.jpg",
+    "source_person_id": "027"
   },
   {
     "person_id": "028",
     "name": "Condoleezza Rice",
-    "filename": "028_Condoleezza_Rice.jpg"
+    "filename": "028_Condoleezza_Rice.jpg",
+    "source_person_id": "028"
   },
   {
     "person_id": "029",
     "name": "Hamid Karzai",
-    "filename": "029_Hamid_Karzai.jpg"
+    "filename": "029_Hamid_Karzai.jpg",
+    "source_person_id": "029"
   },
   {
     "person_id": "030",
     "name": "Charles Moose",
-    "filename": "030_Charles_Moose.jpg"
+    "filename": "030_Charles_Moose.jpg",
+    "source_person_id": "030"
   },
   {
     "person_id": "031",
     "name": "Pedro Malan",
-    "filename": "031_Pedro_Malan.jpg"
-  },
-  {
-    "person_id": "032",
-    "name": "Fidel Castro",
-    "filename": "032_Fidel_Castro.jpg"
+    "filename": "031_Pedro_Malan.jpg",
+    "source_person_id": "031"
   },
   {
     "person_id": "033",
     "name": "Luis Gonzalez Macchi",
-    "filename": "033_Luis_Gonzalez_Macchi.jpg"
+    "filename": "033_Luis_Gonzalez_Macchi.jpg",
+    "source_person_id": "033"
   },
   {
     "person_id": "034",
     "name": "Ricardo Lagos",
-    "filename": "034_Ricardo_Lagos.jpg"
+    "filename": "034_Ricardo_Lagos.jpg",
+    "source_person_id": "034"
   },
   {
     "person_id": "035",
     "name": "Nestor Kirchner",
-    "filename": "035_Nestor_Kirchner.jpg"
+    "filename": "035_Nestor_Kirchner.jpg",
+    "source_person_id": "035"
   },
   {
     "person_id": "036",
     "name": "Li Peng",
-    "filename": "036_Li_Peng.jpg"
+    "filename": "036_Li_Peng.jpg",
+    "source_person_id": "036"
   },
   {
-    "person_id": "037",
+    "person_id": "027",
     "name": "Andre Agassi",
-    "filename": "037_Andre_Agassi.jpg"
+    "filename": "037_Andre_Agassi.jpg",
+    "source_person_id": "037"
   },
   {
-    "person_id": "038",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "038_George_W_Bush.jpg"
+    "filename": "038_George_W_Bush.jpg",
+    "source_person_id": "038"
   },
   {
     "person_id": "039",
     "name": "Bill Clinton",
-    "filename": "039_Bill_Clinton.jpg"
+    "filename": "039_Bill_Clinton.jpg",
+    "source_person_id": "039"
   },
   {
     "person_id": "040",
     "name": "Luis Ernesto Derbez Bautista",
-    "filename": "040_Luis_Ernesto_Derbez_Bautista.jpg"
+    "filename": "040_Luis_Ernesto_Derbez_Bautista.jpg",
+    "source_person_id": "040"
   },
   {
     "person_id": "041",
     "name": "Richard Myers",
-    "filename": "041_Richard_Myers.jpg"
+    "filename": "041_Richard_Myers.jpg",
+    "source_person_id": "041"
   },
   {
     "person_id": "042",
     "name": "Tony Blair",
-    "filename": "042_Tony_Blair.jpg"
+    "filename": "042_Tony_Blair.jpg",
+    "source_person_id": "042"
   },
   {
     "person_id": "043",
     "name": "Martin Scorsese",
-    "filename": "043_Martin_Scorsese.jpg"
+    "filename": "043_Martin_Scorsese.jpg",
+    "source_person_id": "043"
   },
   {
     "person_id": "044",
     "name": "George HW Bush",
-    "filename": "044_George_HW_Bush.jpg"
+    "filename": "044_George_HW_Bush.jpg",
+    "source_person_id": "044"
   },
   {
-    "person_id": "045",
+    "person_id": "039",
     "name": "Bill Clinton",
-    "filename": "045_Bill_Clinton.jpg"
+    "filename": "045_Bill_Clinton.jpg",
+    "source_person_id": "045"
   },
   {
     "person_id": "046",
     "name": "Jeremy Greenstock",
-    "filename": "046_Jeremy_Greenstock.jpg"
+    "filename": "046_Jeremy_Greenstock.jpg",
+    "source_person_id": "046"
   },
   {
-    "person_id": "047",
+    "person_id": "024",
     "name": "Colin Powell",
-    "filename": "047_Colin_Powell.jpg"
+    "filename": "047_Colin_Powell.jpg",
+    "source_person_id": "047"
   },
   {
-    "person_id": "048",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "048_George_W_Bush.jpg"
+    "filename": "048_George_W_Bush.jpg",
+    "source_person_id": "048"
   },
   {
-    "person_id": "049",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "049_George_W_Bush.jpg"
+    "filename": "049_George_W_Bush.jpg",
+    "source_person_id": "049"
   },
   {
-    "person_id": "050",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "050_George_W_Bush.jpg"
+    "filename": "050_George_W_Bush.jpg",
+    "source_person_id": "050"
   },
   {
-    "person_id": "051",
+    "person_id": "005",
     "name": "George Robertson",
-    "filename": "051_George_Robertson.jpg"
+    "filename": "051_George_Robertson.jpg",
+    "source_person_id": "051"
   },
   {
-    "person_id": "052",
+    "person_id": "024",
     "name": "Colin Powell",
-    "filename": "052_Colin_Powell.jpg"
+    "filename": "052_Colin_Powell.jpg",
+    "source_person_id": "052"
   },
   {
-    "person_id": "053",
+    "person_id": "024",
     "name": "Colin Powell",
-    "filename": "053_Colin_Powell.jpg"
+    "filename": "053_Colin_Powell.jpg",
+    "source_person_id": "053"
   },
   {
-    "person_id": "054",
+    "person_id": "001",
     "name": "Vicente Fox",
-    "filename": "054_Vicente_Fox.jpg"
+    "filename": "054_Vicente_Fox.jpg",
+    "source_person_id": "054"
   },
   {
     "person_id": "055",
     "name": "Gerhard Schroeder",
-    "filename": "055_Gerhard_Schroeder.jpg"
+    "filename": "055_Gerhard_Schroeder.jpg",
+    "source_person_id": "055"
   },
   {
     "person_id": "056",
     "name": "Celine Dion",
-    "filename": "056_Celine_Dion.jpg"
+    "filename": "056_Celine_Dion.jpg",
+    "source_person_id": "056"
   },
   {
     "person_id": "057",
     "name": "Alvaro Uribe",
-    "filename": "057_Alvaro_Uribe.jpg"
+    "filename": "057_Alvaro_Uribe.jpg",
+    "source_person_id": "057"
   },
   {
-    "person_id": "058",
+    "person_id": "018",
     "name": "Alejandro Toledo",
-    "filename": "058_Alejandro_Toledo.jpg"
+    "filename": "058_Alejandro_Toledo.jpg",
+    "source_person_id": "058"
   },
   {
     "person_id": "059",
     "name": "Ari Fleischer",
-    "filename": "059_Ari_Fleischer.jpg"
+    "filename": "059_Ari_Fleischer.jpg",
+    "source_person_id": "059"
   },
   {
-    "person_id": "060",
+    "person_id": "024",
     "name": "Colin Powell",
-    "filename": "060_Colin_Powell.jpg"
+    "filename": "060_Colin_Powell.jpg",
+    "source_person_id": "060"
   },
   {
     "person_id": "061",
     "name": "Ariel Sharon",
-    "filename": "061_Ariel_Sharon.jpg"
+    "filename": "061_Ariel_Sharon.jpg",
+    "source_person_id": "061"
   },
   {
     "person_id": "062",
     "name": "Paul Martin",
-    "filename": "062_Paul_Martin.jpg"
+    "filename": "062_Paul_Martin.jpg",
+    "source_person_id": "062"
   },
   {
     "person_id": "063",
     "name": "Robert De Niro",
-    "filename": "063_Robert_De_Niro.jpg"
+    "filename": "063_Robert_De_Niro.jpg",
+    "source_person_id": "063"
   },
   {
     "person_id": "064",
     "name": "John Kerry",
-    "filename": "064_John_Kerry.jpg"
+    "filename": "064_John_Kerry.jpg",
+    "source_person_id": "064"
   },
   {
     "person_id": "065",
     "name": "Tung Chee-hwa",
-    "filename": "065_Tung_Chee-hwa.jpg"
+    "filename": "065_Tung_Chee-hwa.jpg",
+    "source_person_id": "065"
   },
   {
     "person_id": "066",
     "name": "Jimmy Carter",
-    "filename": "066_Jimmy_Carter.jpg"
+    "filename": "066_Jimmy_Carter.jpg",
+    "source_person_id": "066"
   },
   {
-    "person_id": "067",
+    "person_id": "024",
     "name": "Colin Powell",
-    "filename": "067_Colin_Powell.jpg"
+    "filename": "067_Colin_Powell.jpg",
+    "source_person_id": "067"
   },
   {
-    "person_id": "068",
+    "person_id": "004",
     "name": "Bob Graham",
-    "filename": "068_Bob_Graham.jpg"
+    "filename": "068_Bob_Graham.jpg",
+    "source_person_id": "068"
   },
   {
     "person_id": "069",
     "name": "Michael Bloomberg",
-    "filename": "069_Michael_Bloomberg.jpg"
+    "filename": "069_Michael_Bloomberg.jpg",
+    "source_person_id": "069"
   },
   {
-    "person_id": "070",
+    "person_id": "025",
     "name": "Gray Davis",
-    "filename": "070_Gray_Davis.jpg"
+    "filename": "070_Gray_Davis.jpg",
+    "source_person_id": "070"
   },
   {
     "person_id": "071",
     "name": "Wen Jiabao",
-    "filename": "071_Wen_Jiabao.jpg"
+    "filename": "071_Wen_Jiabao.jpg",
+    "source_person_id": "071"
   },
   {
     "person_id": "072",
     "name": "Amelie Mauresmo",
-    "filename": "072_Amelie_Mauresmo.jpg"
+    "filename": "072_Amelie_Mauresmo.jpg",
+    "source_person_id": "072"
   },
   {
     "person_id": "073",
     "name": "Joschka Fischer",
-    "filename": "073_Joschka_Fischer.jpg"
+    "filename": "073_Joschka_Fischer.jpg",
+    "source_person_id": "073"
   },
   {
     "person_id": "074",
     "name": "Tiger Woods",
-    "filename": "074_Tiger_Woods.jpg"
+    "filename": "074_Tiger_Woods.jpg",
+    "source_person_id": "074"
   },
   {
-    "person_id": "075",
+    "person_id": "024",
     "name": "Colin Powell",
-    "filename": "075_Colin_Powell.jpg"
+    "filename": "075_Colin_Powell.jpg",
+    "source_person_id": "075"
   },
   {
     "person_id": "076",
     "name": "John Paul II",
-    "filename": "076_John_Paul_II.jpg"
+    "filename": "076_John_Paul_II.jpg",
+    "source_person_id": "076"
   },
   {
-    "person_id": "077",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "077_George_W_Bush.jpg"
+    "filename": "077_George_W_Bush.jpg",
+    "source_person_id": "077"
   },
   {
     "person_id": "078",
     "name": "Pete Sampras",
-    "filename": "078_Pete_Sampras.jpg"
+    "filename": "078_Pete_Sampras.jpg",
+    "source_person_id": "078"
   },
   {
     "person_id": "079",
     "name": "James Kelly",
-    "filename": "079_James_Kelly.jpg"
+    "filename": "079_James_Kelly.jpg",
+    "source_person_id": "079"
   },
   {
-    "person_id": "080",
+    "person_id": "059",
     "name": "Ari Fleischer",
-    "filename": "080_Ari_Fleischer.jpg"
+    "filename": "080_Ari_Fleischer.jpg",
+    "source_person_id": "080"
   },
   {
     "person_id": "081",
     "name": "Mike Myers",
-    "filename": "081_Mike_Myers.jpg"
+    "filename": "081_Mike_Myers.jpg",
+    "source_person_id": "081"
   },
   {
-    "person_id": "082",
+    "person_id": "042",
     "name": "Tony Blair",
-    "filename": "082_Tony_Blair.jpg"
+    "filename": "082_Tony_Blair.jpg",
+    "source_person_id": "082"
   },
   {
     "person_id": "083",
     "name": "Hu Jintao",
-    "filename": "083_Hu_Jintao.jpg"
+    "filename": "083_Hu_Jintao.jpg",
+    "source_person_id": "083"
   },
   {
     "person_id": "084",
     "name": "Holly Hunter",
-    "filename": "084_Holly_Hunter.jpg"
+    "filename": "084_Holly_Hunter.jpg",
+    "source_person_id": "084"
   },
   {
-    "person_id": "085",
+    "person_id": "022",
     "name": "Luiz Inacio Lula da Silva",
-    "filename": "085_Luiz_Inacio_Lula_da_Silva.jpg"
+    "filename": "085_Luiz_Inacio_Lula_da_Silva.jpg",
+    "source_person_id": "085"
   },
   {
     "person_id": "086",
     "name": "Robert Duvall",
-    "filename": "086_Robert_Duvall.jpg"
+    "filename": "086_Robert_Duvall.jpg",
+    "source_person_id": "086"
   },
   {
     "person_id": "087",
     "name": "Martin McGuinness",
-    "filename": "087_Martin_McGuinness.jpg"
+    "filename": "087_Martin_McGuinness.jpg",
+    "source_person_id": "087"
   },
   {
     "person_id": "088",
     "name": "Sourav Ganguly",
-    "filename": "088_Sourav_Ganguly.jpg"
+    "filename": "088_Sourav_Ganguly.jpg",
+    "source_person_id": "088"
   },
   {
     "person_id": "089",
     "name": "Julianne Moore",
-    "filename": "089_Julianne_Moore.jpg"
+    "filename": "089_Julianne_Moore.jpg",
+    "source_person_id": "089"
   },
   {
     "person_id": "090",
     "name": "Jacques Rogge",
-    "filename": "090_Jacques_Rogge.jpg"
+    "filename": "090_Jacques_Rogge.jpg",
+    "source_person_id": "090"
   },
   {
     "person_id": "091",
     "name": "Kurt Warner",
-    "filename": "091_Kurt_Warner.jpg"
+    "filename": "091_Kurt_Warner.jpg",
+    "source_person_id": "091"
   },
   {
-    "person_id": "092",
+    "person_id": "033",
     "name": "Luis Gonzalez Macchi",
-    "filename": "092_Luis_Gonzalez_Macchi.jpg"
+    "filename": "092_Luis_Gonzalez_Macchi.jpg",
+    "source_person_id": "092"
   },
   {
     "person_id": "093",
     "name": "Choi Sung-hong",
-    "filename": "093_Choi_Sung-hong.jpg"
+    "filename": "093_Choi_Sung-hong.jpg",
+    "source_person_id": "093"
   },
   {
     "person_id": "094",
     "name": "Guillermo Coria",
-    "filename": "094_Guillermo_Coria.jpg"
+    "filename": "094_Guillermo_Coria.jpg",
+    "source_person_id": "094"
   },
   {
     "person_id": "095",
     "name": "John Allen Muhammad",
-    "filename": "095_John_Allen_Muhammad.jpg"
+    "filename": "095_John_Allen_Muhammad.jpg",
+    "source_person_id": "095"
   },
   {
-    "person_id": "096",
+    "person_id": "020",
     "name": "George W Bush",
-    "filename": "096_George_W_Bush.jpg"
+    "filename": "096_George_W_Bush.jpg",
+    "source_person_id": "096"
   },
   {
     "person_id": "097",
     "name": "Roh Moo-hyun",
-    "filename": "097_Roh_Moo-hyun.jpg"
+    "filename": "097_Roh_Moo-hyun.jpg",
+    "source_person_id": "097"
   },
   {
     "person_id": "098",
     "name": "Jennifer Lopez",
-    "filename": "098_Jennifer_Lopez.jpg"
+    "filename": "098_Jennifer_Lopez.jpg",
+    "source_person_id": "098"
   },
   {
     "person_id": "099",
     "name": "David Nalbandian",
-    "filename": "099_David_Nalbandian.jpg"
+    "filename": "099_David_Nalbandian.jpg",
+    "source_person_id": "099"
   },
   {
     "person_id": "100",
     "name": "Bill McBride",
-    "filename": "100_Bill_McBride.jpg"
+    "filename": "100_Bill_McBride.jpg",
+    "source_person_id": "100"
+  },
+  {
+    "person_id": "039",
+    "name": "Bill Clinton",
+    "filename": "Screenshot 2026-08-10 012412.png"
   }
 ]

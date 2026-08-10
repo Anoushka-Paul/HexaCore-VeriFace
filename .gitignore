@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.venv/
+
+# Environment variables / secrets
+.env
+
+# Runtime-generated data — audit log gets recreated on server startup
+audit.db
+
+# Raw face dataset — LFW images are ~100 files, not something you want in
+# git history. Anyone can regenerate this by running get_lfw_dataset.py.
+dataset/
+
+# InsightFace model weights get auto-downloaded (~280MB) on first run —
+# no need to commit them, and GitHub will reject files this large anyway
+.insightface/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Reproducible CCTV scan output; regenerate with create_cctv_demo.py / cctv_scan.py
+demo_cctv_evidence/
+demo_cctv_results.json
+demo_cctv_review.mp4
+cctv_jobs/
