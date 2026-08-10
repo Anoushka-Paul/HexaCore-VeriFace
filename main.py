@@ -24,9 +24,10 @@ from datetime import datetime, timezone
 import cv2
 import faiss
 import numpy as np
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from auth_service import auth_app, require_role
 from insightface.app import FaceAnalysis
 from cctv_scan import run_cctv_scan
 from face_utils import DET_SIZE, MODEL_NAME, create_face_app, normalize_embedding, validate_single_face
@@ -44,6 +45,11 @@ TOP_K = 5
 MIN_CANDIDATE_SIMILARITY = 0.50
 
 app = FastAPI(title="VeriFace Search API")
+
+# Mount the teammate's auth/case-management module under /auth.
+# The auth package uses a separate SQLite file for user/case storage,
+# while this root app continues to use audit.db for the face-search audit trail.
+app.mount("/auth", auth_app)
 
 # NOTE: allow_origins=["*"] is fine for a hackathon demo (any frontend origin
 # can call this API). For a real deployment this should be locked down to the
@@ -177,7 +183,10 @@ def serialize_results(query_embedding: np.ndarray) -> list[dict]:
 
 
 @app.post("/search")
-async def search(file: UploadFile = File(...)):
+async def search(
+    file: UploadFile = File(...),
+    current_user=Depends(require_role("officer", "admin")),
+):
     if index is None or mapping is None or face_app is None:
         raise HTTPException(status_code=503, detail="Server not ready yet")
 
@@ -205,6 +214,7 @@ async def add_person(
     person_id: str = Form(...),
     name: str = Form(...),
     file: UploadFile = File(...),
+    current_user=Depends(require_role("admin")),
 ):
     """
     Adds a new reference to a person. Reusing an existing person_id is allowed
@@ -254,6 +264,7 @@ async def cctv_scan(
     camera_id: str = Form("cam_1"),
     interval: float = Form(0.5),
     threshold: float = Form(0.45),
+    current_user=Depends(require_role("officer", "admin")),
 ):
     """Scan one uploaded video and return candidate frames/events plus review artifacts."""
     if interval <= 0 or not 0 <= threshold <= 1:
@@ -292,7 +303,7 @@ async def cctv_scan(
 
 
 @app.get("/cctv-jobs/{job_id}/results")
-def get_cctv_results(job_id: str):
+def get_cctv_results(job_id: str, current_user=Depends(require_role("officer", "admin"))):
     result_path = job_directory(job_id) / "results.json"
     if not result_path.is_file():
         raise HTTPException(status_code=404, detail="CCTV results not found")
@@ -300,7 +311,7 @@ def get_cctv_results(job_id: str):
 
 
 @app.get("/cctv-jobs/{job_id}/review-video")
-def get_cctv_review_video(job_id: str):
+def get_cctv_review_video(job_id: str, current_user=Depends(require_role("officer", "admin"))):
     review_path = job_directory(job_id) / "review.mp4"
     if not review_path.is_file():
         raise HTTPException(status_code=404, detail="Annotated review video not found")
@@ -308,7 +319,7 @@ def get_cctv_review_video(job_id: str):
 
 
 @app.get("/cctv-jobs/{job_id}/evidence/{filename}")
-def get_cctv_evidence(job_id: str, filename: str):
+def get_cctv_evidence(job_id: str, filename: str, current_user=Depends(require_role("officer", "admin"))):
     if Path(filename).name != filename:
         raise HTTPException(status_code=404, detail="Evidence image not found")
     evidence_path = job_directory(job_id) / "evidence" / filename
@@ -318,7 +329,7 @@ def get_cctv_evidence(job_id: str, filename: str):
 
 
 @app.get("/audit")
-def get_audit_log():
+def get_audit_log(current_user=Depends(require_role("admin"))):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(

@@ -7,3 +7,6 @@ opencv-python-headless
 faiss-cpu
 numpy
 scikit-learn  # only needed to regenerate the optional LFW demo dataset
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]

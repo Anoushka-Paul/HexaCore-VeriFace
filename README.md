@@ -99,6 +99,13 @@ The response contains `matches` (frame number, timestamp, score, face box), grou
 - `GET /cctv-jobs/{job_id}/review-video` — download the annotated review MP4.
 - `GET /audit` — returns the image-search audit log.
 - `GET /health` — status, index size, and active model configuration.
+- `POST /auth/register` — create a new user for local/dev setup.
+- `POST /auth/login` — obtain a bearer token for protected routes.
+- `GET /auth/me` — view the currently authenticated user.
+
+## Authentication
+
+The API now uses JWT bearer auth for all operational workflows. `POST /search`, `POST /cctv-scan`, and CCTV evidence retrieval require an authenticated officer or admin. `POST /add-person` and `GET /audit` are restricted to admin users only.
 
 ## Responsible use and production considerations
 
