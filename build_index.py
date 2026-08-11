@@ -99,6 +99,7 @@ def build_index(input_dir: str, output_index: str, output_map: str):
             "name": name,
             "filename": relative_path,
             "source_person_id": source_person_id,
+            "category": "criminal",
         })
 
     if not embeddings:

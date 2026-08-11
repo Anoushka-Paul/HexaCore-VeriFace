@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 import cv2
 import faiss
 import numpy as np
-from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from auth_service import auth_app, require_role
@@ -40,6 +40,18 @@ INDEX_PATH = os.path.join(BASE_DIR, "face_index.faiss")
 MAPPING_PATH = os.path.join(BASE_DIR, "face_mapping.json")
 DB_PATH = os.path.join(BASE_DIR, "audit.db")
 JOBS_DIR = Path(BASE_DIR) / "cctv_jobs"
+
+# Load camera locations from JSON (small lookup for map UI later)
+CAMERA_LOCATIONS_PATH = os.path.join(BASE_DIR, "camera_locations.json")
+try:
+    with open(CAMERA_LOCATIONS_PATH, "r", encoding="utf-8") as _cl:
+        CAMERA_LOCATIONS = json.load(_cl)
+except Exception:
+    CAMERA_LOCATIONS = {}
+
+# In-memory job status cache. Each job_id maps to a dict like:
+# {"job_id": ..., "status": "processing"|'done'|'failed', ...}
+JOBS_STATUS: dict[str, dict] = {}
 
 TOP_K = 5
 MIN_CANDIDATE_SIMILARITY = 0.50
@@ -82,8 +94,71 @@ def init_db():
             confidence TEXT
         )
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS sightings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            person_id TEXT,
+            camera_id TEXT NOT NULL,
+            lat REAL,
+            lng REAL,
+            label TEXT,
+            timestamp TEXT NOT NULL,
+            video_time_sec REAL,
+            similarity REAL,
+            job_id TEXT NOT NULL
+        )
+    """)
     conn.commit()
     conn.close()
+
+
+def backfill_jobs_status():
+    """Scan `cctv_jobs` for existing status.json files and populate JOBS_STATUS."""
+    if not JOBS_DIR.is_dir():
+        return
+    for child in JOBS_DIR.iterdir():
+        if not child.is_dir():
+            continue
+        status_path = child / "status.json"
+        if status_path.is_file():
+            try:
+                status = json.loads(status_path.read_text(encoding="utf-8"))
+                job_id = status.get("job_id", child.name)
+                JOBS_STATUS[job_id] = status
+            except Exception:
+                print(f"Warning: failed to read status for job {child.name}")
+
+
+def get_camera_location(camera_id: str) -> dict | None:
+    """Return a dict with lat/lng/label for a camera_id, or None if unknown."""
+    return CAMERA_LOCATIONS.get(camera_id)
+
+
+def persist_sightings(events: list[dict], camera_id: str, camera_loc: dict | None, job_id: str, person_id: str | None):
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        for ev in events:
+            video_time = ev.get("start_sec")
+            conn.execute(
+                """
+                INSERT INTO sightings (person_id, camera_id, lat, lng, label, timestamp, video_time_sec, similarity, job_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    person_id,
+                    camera_id,
+                    camera_loc.get("lat") if camera_loc else None,
+                    camera_loc.get("lng") if camera_loc else None,
+                    camera_loc.get("label") if camera_loc else None,
+                    datetime.now(timezone.utc).isoformat(),
+                    video_time,
+                    ev.get("best_similarity"),
+                    job_id,
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def log_search(filename: str, top_result: dict | None):
@@ -139,13 +214,27 @@ def load_resources():
     index = faiss.read_index(INDEX_PATH)
 
     print(f"Loading mapping from {MAPPING_PATH}...")
-    with open(MAPPING_PATH, "r") as f:
+    with open(MAPPING_PATH, "r", encoding="utf-8") as f:
         mapping = json.load(f)
+
+    # Backfill missing `category` for older mappings. Default to 'criminal'.
+    updated = False
+    for entry in mapping:
+        if "category" not in entry:
+            entry["category"] = "criminal"
+            updated = True
+    if updated:
+        print("Backfilling missing 'category' in mapping and saving...")
+        with open(MAPPING_PATH, "w", encoding="utf-8") as f:
+            json.dump(mapping, f, indent=2, ensure_ascii=False)
 
     print("Initializing audit database...")
     init_db()
 
     print(f"Ready. Index has {index.ntotal} faces, mapping has {len(mapping)} entries.")
+
+    # Backfill in-memory job status from any existing on-disk job status files.
+    backfill_jobs_status()
 
 
 def confidence_label(similarity: float) -> str:
@@ -168,12 +257,15 @@ def serialize_results(query_embedding: np.ndarray) -> list[dict]:
         sim = float(similarity)
         person = people.setdefault(entry["person_id"], {
             "person_id": entry["person_id"], "name": entry["name"],
+            "category": entry.get("category", "criminal"),
             "similarity": sim, "best_reference": entry["filename"], "reference_count": 0,
         })
         person["reference_count"] += 1
         if sim > person["similarity"]:
             person["similarity"] = sim
             person["best_reference"] = entry["filename"]
+            # If mapping carries category per reference, update person's category
+            person["category"] = entry.get("category", person.get("category", "criminal"))
     ranked = sorted(people.values(), key=lambda person: person["similarity"], reverse=True)[:TOP_K]
     for person in ranked:
         person["similarity"] = round(person["similarity"], 4)
@@ -213,6 +305,7 @@ async def search(
 async def add_person(
     person_id: str = Form(...),
     name: str = Form(...),
+    category: str = Form(..., description="criminal | missing_person"),
     file: UploadFile = File(...),
     current_user=Depends(require_role("admin")),
 ):
@@ -233,6 +326,9 @@ async def add_person(
     face, reason = validate_single_face(face_app.get(img))
     if reason:
         raise HTTPException(status_code=422, detail=reason)
+    # Validate category explicitly
+    if category not in {"criminal", "missing_person"}:
+        raise HTTPException(status_code=422, detail="category must be 'criminal' or 'missing_person'")
     embedding = normalize_embedding(face.embedding)
     # Keep the vector index and its positional mapping atomically aligned.
     with index_lock:
@@ -244,6 +340,7 @@ async def add_person(
             "person_id": person_id,
             "name": name,
             "filename": file.filename,
+            "category": category,
         })
         save_index_and_mapping()
 
@@ -264,6 +361,7 @@ async def cctv_scan(
     camera_id: str = Form("cam_1"),
     interval: float = Form(0.5),
     threshold: float = Form(0.45),
+    background_tasks: BackgroundTasks = None,
     current_user=Depends(require_role("officer", "admin")),
 ):
     """Scan one uploaded video and return candidate frames/events plus review artifacts."""
@@ -276,6 +374,8 @@ async def cctv_scan(
     if target_suffix not in {".jpg", ".jpeg", ".png"}:
         raise HTTPException(status_code=415, detail="Target image must be JPG, JPEG, or PNG")
 
+    # Create job folder and persist uploads immediately, then run the
+    # heavy work in a BackgroundTasks worker so we can return instantly.
     job_id = uuid.uuid4().hex
     job_dir = JOBS_DIR / job_id
     evidence_dir = job_dir / "evidence"
@@ -283,31 +383,97 @@ async def cctv_scan(
     video_path, target_path = job_dir / f"source{video_suffix}", job_dir / f"target{target_suffix}"
     await persist_upload(video, video_path)
     await persist_upload(target, target_path)
-    try:
-        results = run_cctv_scan(
-            str(video_path), str(target_path), camera_id, interval, threshold,
-            str(evidence_dir), str(job_dir / "review.mp4"),
-        )
-    except (SystemExit, ValueError) as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
 
-    evidence_urls = [f"/cctv-jobs/{job_id}/evidence/{match['evidence_image']}" for match in results["matches"]]
-    results["input"]["video"] = video.filename
-    results["artifacts"] = {
-        "results_url": f"/cctv-jobs/{job_id}/results",
-        "review_video_url": f"/cctv-jobs/{job_id}/review-video",
-        "evidence_urls": evidence_urls,
-    }
-    (job_dir / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
-    return {"job_id": job_id, "status": "complete", **results}
+    # Initialize job status (persisted and in-memory)
+    status_obj = {"job_id": job_id, "status": "processing"}
+    JOBS_STATUS[job_id] = status_obj
+    (job_dir / "status.json").write_text(json.dumps(status_obj), encoding="utf-8")
+
+    # Schedule background worker
+    def _cctv_worker(job_id: str, job_dir: Path, video_path: str, target_path: str, camera_id: str, interval: float, threshold: float):
+        try:
+            evidence_dir = job_dir / "evidence"
+
+            # Attempt to resolve target -> person_id using the server's FAISS index.
+            person_id = None
+            try:
+                # Read target image and compute embedding using the loaded face_app
+                import cv2 as _cv2
+                img = _cv2.imread(str(target_path))
+                if img is not None and face_app is not None:
+                    face_obj, reason = validate_single_face(face_app.get(img))
+                    if not reason and face_obj is not None:
+                        target_embedding = normalize_embedding(face_obj.embedding)
+                        top_people = serialize_results(target_embedding)
+                        if top_people:
+                            person_id = top_people[0].get("person_id")
+            except Exception:
+                # Non-fatal: if we cannot resolve person_id, continue without it
+                person_id = None
+
+            cam_loc = get_camera_location(camera_id)
+            results = run_cctv_scan(
+                str(video_path), str(target_path), camera_id, interval, threshold,
+                str(evidence_dir), str(job_dir / "review.mp4"),
+                camera_location=cam_loc,
+            )
+
+            # Persist sightings for each event. If persistence fails, do not mark the job as done.
+            persist_sightings(results.get("events", []), camera_id, cam_loc, job_id, person_id)
+
+            # Add artifact URLs and save results
+            evidence_urls = [f"/cctv-jobs/{job_id}/evidence/{match['evidence_image']}" for match in results["matches"]]
+            results["input"]["video"] = Path(video_path).name
+            results["input"]["camera_location"] = cam_loc
+            results["input"]["resolved_person_id"] = person_id
+            results["status"] = "done"
+            results["artifacts"] = {
+                "results_url": f"/cctv-jobs/{job_id}/results",
+                "review_video_url": f"/cctv-jobs/{job_id}/review-video",
+                "evidence_urls": evidence_urls,
+            }
+            (job_dir / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
+            status_obj = {"job_id": job_id, "status": "done"}
+            (job_dir / "status.json").write_text(json.dumps(status_obj), encoding="utf-8")
+            JOBS_STATUS[job_id] = status_obj
+        except Exception as exc:
+            err = str(exc)
+            status_obj = {"job_id": job_id, "status": "failed", "error": err}
+            (job_dir / "status.json").write_text(json.dumps(status_obj), encoding="utf-8")
+            JOBS_STATUS[job_id] = status_obj
+
+    # Add to FastAPI BackgroundTasks so the worker runs after response
+    if background_tasks is None:
+        # Defensive: if BackgroundTasks not provided, run in a thread via add_task still expects it; raise to be explicit
+        raise HTTPException(status_code=500, detail="BackgroundTasks not available")
+    background_tasks.add_task(_cctv_worker, job_id, job_dir, str(video_path), str(target_path), camera_id, interval, threshold)
+
+    return {"job_id": job_id, "status": "processing"}
 
 
 @app.get("/cctv-jobs/{job_id}/results")
 def get_cctv_results(job_id: str, current_user=Depends(require_role("officer", "admin"))):
-    result_path = job_directory(job_id) / "results.json"
-    if not result_path.is_file():
-        raise HTTPException(status_code=404, detail="CCTV results not found")
-    return json.loads(result_path.read_text(encoding="utf-8"))
+    job_dir = job_directory(job_id)
+    status_path = job_dir / "status.json"
+    results_path = job_dir / "results.json"
+
+    if status_path.is_file():
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+    else:
+        # Fall back to in-memory status if available
+        status = JOBS_STATUS.get(job_id, {"job_id": job_id, "status": "unknown"})
+
+    if status["status"] == "processing":
+        return status
+    if status["status"] == "failed":
+        return status
+    if results_path.is_file():
+        results = json.loads(results_path.read_text(encoding="utf-8"))
+        if status["status"] == "done":
+            results["status"] = "done"
+        return results
+    # If marked done but file missing, return status to indicate finalization issue
+    return status
 
 
 @app.get("/cctv-jobs/{job_id}/review-video")
@@ -338,6 +504,37 @@ def get_audit_log(current_user=Depends(require_role("admin"))):
     conn.close()
 
     return [dict(row) for row in rows]
+
+
+@app.get("/sightings")
+def query_sightings(
+    person_id: str | None = None,
+    camera_id: str | None = None,
+    current_user=Depends(require_role("officer", "admin")),
+):
+    query = "SELECT * FROM sightings"
+    params: list = []
+    filters: list[str] = []
+    if person_id:
+        filters.append("person_id = ?")
+        params.append(person_id)
+    if camera_id:
+        filters.append("camera_id = ?")
+        params.append(camera_id)
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
+    query += " ORDER BY timestamp DESC"
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+@app.get("/camera-locations")
+def camera_locations(current_user=Depends(require_role("officer", "admin"))):
+    return CAMERA_LOCATIONS
 
 
 @app.get("/health")

@@ -3,587 +3,721 @@
     "person_id": "001",
     "name": "Vicente Fox",
     "filename": "001_Vicente_Fox.jpg",
-    "source_person_id": "001"
+    "source_person_id": "001",
+    "category": "criminal"
   },
   {
     "person_id": "002",
     "name": "Paul Burrell",
     "filename": "002_Paul_Burrell.jpg",
-    "source_person_id": "002"
+    "source_person_id": "002",
+    "category": "criminal"
   },
   {
     "person_id": "003",
     "name": "Pierce Brosnan",
     "filename": "003_Pierce_Brosnan.jpg",
-    "source_person_id": "003"
+    "source_person_id": "003",
+    "category": "criminal"
   },
   {
     "person_id": "004",
     "name": "Bob Graham",
     "filename": "004_Bob_Graham.jpg",
-    "source_person_id": "004"
+    "source_person_id": "004",
+    "category": "criminal"
   },
   {
     "person_id": "005",
     "name": "George Robertson",
     "filename": "005_George_Robertson.jpg",
-    "source_person_id": "005"
+    "source_person_id": "005",
+    "category": "criminal"
   },
   {
     "person_id": "006",
     "name": "Mike Weir",
     "filename": "006_Mike_Weir.jpg",
-    "source_person_id": "006"
+    "source_person_id": "006",
+    "category": "criminal"
   },
   {
     "person_id": "007",
     "name": "Lance Armstrong",
     "filename": "007_Lance_Armstrong.jpg",
-    "source_person_id": "007"
+    "source_person_id": "007",
+    "category": "criminal"
   },
   {
     "person_id": "008",
     "name": "Catherine Deneuve",
     "filename": "008_Catherine_Deneuve.jpg",
-    "source_person_id": "008"
+    "source_person_id": "008",
+    "category": "criminal"
   },
   {
     "person_id": "009",
     "name": "Britney Spears",
     "filename": "009_Britney_Spears.jpg",
-    "source_person_id": "009"
+    "source_person_id": "009",
+    "category": "criminal"
   },
   {
     "person_id": "010",
     "name": "Jason Kidd",
     "filename": "010_Jason_Kidd.jpg",
-    "source_person_id": "010"
+    "source_person_id": "010",
+    "category": "criminal"
   },
   {
     "person_id": "012",
     "name": "David Beckham",
     "filename": "012_David_Beckham.jpg",
-    "source_person_id": "012"
+    "source_person_id": "012",
+    "category": "criminal"
   },
   {
     "person_id": "013",
     "name": "John Stockton",
     "filename": "013_John_Stockton.jpg",
-    "source_person_id": "013"
+    "source_person_id": "013",
+    "category": "criminal"
   },
   {
     "person_id": "015",
     "name": "Renee Zellweger",
     "filename": "015_Renee_Zellweger.jpg",
-    "source_person_id": "015"
+    "source_person_id": "015",
+    "category": "criminal"
   },
   {
     "person_id": "016",
     "name": "Donald Rumsfeld",
     "filename": "016_Donald_Rumsfeld.jpg",
-    "source_person_id": "016"
+    "source_person_id": "016",
+    "category": "criminal"
   },
   {
     "person_id": "017",
     "name": "James Wolfensohn",
     "filename": "017_James_Wolfensohn.jpg",
-    "source_person_id": "017"
+    "source_person_id": "017",
+    "category": "criminal"
   },
   {
     "person_id": "018",
     "name": "Alejandro Toledo",
     "filename": "018_Alejandro_Toledo.jpg",
-    "source_person_id": "018"
+    "source_person_id": "018",
+    "category": "criminal"
   },
   {
     "person_id": "019",
     "name": "Tom Daschle",
     "filename": "019_Tom_Daschle.jpg",
-    "source_person_id": "019"
+    "source_person_id": "019",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "020_George_W_Bush.jpg",
-    "source_person_id": "020"
+    "source_person_id": "020",
+    "category": "criminal"
   },
   {
     "person_id": "021",
     "name": "Benjamin Netanyahu",
     "filename": "021_Benjamin_Netanyahu.jpg",
-    "source_person_id": "021"
+    "source_person_id": "021",
+    "category": "criminal"
   },
   {
     "person_id": "022",
     "name": "Luiz Inacio Lula da Silva",
     "filename": "022_Luiz_Inacio_Lula_da_Silva.jpg",
-    "source_person_id": "022"
+    "source_person_id": "022",
+    "category": "criminal"
   },
   {
     "person_id": "023",
     "name": "Venus Williams",
     "filename": "023_Venus_Williams.jpg",
-    "source_person_id": "023"
+    "source_person_id": "023",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "024_Colin_Powell.jpg",
-    "source_person_id": "024"
+    "source_person_id": "024",
+    "category": "criminal"
   },
   {
     "person_id": "025",
     "name": "Gray Davis",
     "filename": "025_Gray_Davis.jpg",
-    "source_person_id": "025"
+    "source_person_id": "025",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "026_George_W_Bush.jpg",
-    "source_person_id": "026"
+    "source_person_id": "026",
+    "category": "criminal"
   },
   {
     "person_id": "027",
     "name": "Andre Agassi",
     "filename": "027_Andre_Agassi.jpg",
-    "source_person_id": "027"
+    "source_person_id": "027",
+    "category": "criminal"
   },
   {
     "person_id": "028",
     "name": "Condoleezza Rice",
     "filename": "028_Condoleezza_Rice.jpg",
-    "source_person_id": "028"
+    "source_person_id": "028",
+    "category": "criminal"
   },
   {
     "person_id": "029",
     "name": "Hamid Karzai",
     "filename": "029_Hamid_Karzai.jpg",
-    "source_person_id": "029"
+    "source_person_id": "029",
+    "category": "criminal"
   },
   {
     "person_id": "030",
     "name": "Charles Moose",
     "filename": "030_Charles_Moose.jpg",
-    "source_person_id": "030"
+    "source_person_id": "030",
+    "category": "criminal"
   },
   {
     "person_id": "031",
     "name": "Pedro Malan",
     "filename": "031_Pedro_Malan.jpg",
-    "source_person_id": "031"
+    "source_person_id": "031",
+    "category": "criminal"
   },
   {
     "person_id": "033",
     "name": "Luis Gonzalez Macchi",
     "filename": "033_Luis_Gonzalez_Macchi.jpg",
-    "source_person_id": "033"
+    "source_person_id": "033",
+    "category": "criminal"
   },
   {
     "person_id": "034",
     "name": "Ricardo Lagos",
     "filename": "034_Ricardo_Lagos.jpg",
-    "source_person_id": "034"
+    "source_person_id": "034",
+    "category": "criminal"
   },
   {
     "person_id": "035",
     "name": "Nestor Kirchner",
     "filename": "035_Nestor_Kirchner.jpg",
-    "source_person_id": "035"
+    "source_person_id": "035",
+    "category": "criminal"
   },
   {
     "person_id": "036",
     "name": "Li Peng",
     "filename": "036_Li_Peng.jpg",
-    "source_person_id": "036"
+    "source_person_id": "036",
+    "category": "criminal"
   },
   {
     "person_id": "027",
     "name": "Andre Agassi",
     "filename": "037_Andre_Agassi.jpg",
-    "source_person_id": "037"
+    "source_person_id": "037",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "038_George_W_Bush.jpg",
-    "source_person_id": "038"
+    "source_person_id": "038",
+    "category": "criminal"
   },
   {
     "person_id": "039",
     "name": "Bill Clinton",
     "filename": "039_Bill_Clinton.jpg",
-    "source_person_id": "039"
+    "source_person_id": "039",
+    "category": "criminal"
   },
   {
     "person_id": "040",
     "name": "Luis Ernesto Derbez Bautista",
     "filename": "040_Luis_Ernesto_Derbez_Bautista.jpg",
-    "source_person_id": "040"
+    "source_person_id": "040",
+    "category": "criminal"
   },
   {
     "person_id": "041",
     "name": "Richard Myers",
     "filename": "041_Richard_Myers.jpg",
-    "source_person_id": "041"
+    "source_person_id": "041",
+    "category": "criminal"
   },
   {
     "person_id": "042",
     "name": "Tony Blair",
     "filename": "042_Tony_Blair.jpg",
-    "source_person_id": "042"
+    "source_person_id": "042",
+    "category": "criminal"
   },
   {
     "person_id": "043",
     "name": "Martin Scorsese",
     "filename": "043_Martin_Scorsese.jpg",
-    "source_person_id": "043"
+    "source_person_id": "043",
+    "category": "criminal"
   },
   {
     "person_id": "044",
     "name": "George HW Bush",
     "filename": "044_George_HW_Bush.jpg",
-    "source_person_id": "044"
+    "source_person_id": "044",
+    "category": "criminal"
   },
   {
     "person_id": "039",
     "name": "Bill Clinton",
     "filename": "045_Bill_Clinton.jpg",
-    "source_person_id": "045"
+    "source_person_id": "045",
+    "category": "criminal"
   },
   {
     "person_id": "046",
     "name": "Jeremy Greenstock",
     "filename": "046_Jeremy_Greenstock.jpg",
-    "source_person_id": "046"
+    "source_person_id": "046",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "047_Colin_Powell.jpg",
-    "source_person_id": "047"
+    "source_person_id": "047",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "048_George_W_Bush.jpg",
-    "source_person_id": "048"
+    "source_person_id": "048",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "049_George_W_Bush.jpg",
-    "source_person_id": "049"
+    "source_person_id": "049",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "050_George_W_Bush.jpg",
-    "source_person_id": "050"
+    "source_person_id": "050",
+    "category": "criminal"
   },
   {
     "person_id": "005",
     "name": "George Robertson",
     "filename": "051_George_Robertson.jpg",
-    "source_person_id": "051"
+    "source_person_id": "051",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "052_Colin_Powell.jpg",
-    "source_person_id": "052"
+    "source_person_id": "052",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "053_Colin_Powell.jpg",
-    "source_person_id": "053"
+    "source_person_id": "053",
+    "category": "criminal"
   },
   {
     "person_id": "001",
     "name": "Vicente Fox",
     "filename": "054_Vicente_Fox.jpg",
-    "source_person_id": "054"
+    "source_person_id": "054",
+    "category": "criminal"
   },
   {
     "person_id": "055",
     "name": "Gerhard Schroeder",
     "filename": "055_Gerhard_Schroeder.jpg",
-    "source_person_id": "055"
+    "source_person_id": "055",
+    "category": "criminal"
   },
   {
     "person_id": "056",
     "name": "Celine Dion",
     "filename": "056_Celine_Dion.jpg",
-    "source_person_id": "056"
+    "source_person_id": "056",
+    "category": "criminal"
   },
   {
     "person_id": "057",
     "name": "Alvaro Uribe",
     "filename": "057_Alvaro_Uribe.jpg",
-    "source_person_id": "057"
+    "source_person_id": "057",
+    "category": "criminal"
   },
   {
     "person_id": "018",
     "name": "Alejandro Toledo",
     "filename": "058_Alejandro_Toledo.jpg",
-    "source_person_id": "058"
+    "source_person_id": "058",
+    "category": "criminal"
   },
   {
     "person_id": "059",
     "name": "Ari Fleischer",
     "filename": "059_Ari_Fleischer.jpg",
-    "source_person_id": "059"
+    "source_person_id": "059",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "060_Colin_Powell.jpg",
-    "source_person_id": "060"
+    "source_person_id": "060",
+    "category": "criminal"
   },
   {
     "person_id": "061",
     "name": "Ariel Sharon",
     "filename": "061_Ariel_Sharon.jpg",
-    "source_person_id": "061"
+    "source_person_id": "061",
+    "category": "criminal"
   },
   {
     "person_id": "062",
     "name": "Paul Martin",
     "filename": "062_Paul_Martin.jpg",
-    "source_person_id": "062"
+    "source_person_id": "062",
+    "category": "criminal"
   },
   {
     "person_id": "063",
     "name": "Robert De Niro",
     "filename": "063_Robert_De_Niro.jpg",
-    "source_person_id": "063"
+    "source_person_id": "063",
+    "category": "criminal"
   },
   {
     "person_id": "064",
     "name": "John Kerry",
     "filename": "064_John_Kerry.jpg",
-    "source_person_id": "064"
+    "source_person_id": "064",
+    "category": "criminal"
   },
   {
     "person_id": "065",
     "name": "Tung Chee-hwa",
     "filename": "065_Tung_Chee-hwa.jpg",
-    "source_person_id": "065"
+    "source_person_id": "065",
+    "category": "criminal"
   },
   {
     "person_id": "066",
     "name": "Jimmy Carter",
     "filename": "066_Jimmy_Carter.jpg",
-    "source_person_id": "066"
+    "source_person_id": "066",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "067_Colin_Powell.jpg",
-    "source_person_id": "067"
+    "source_person_id": "067",
+    "category": "criminal"
   },
   {
     "person_id": "004",
     "name": "Bob Graham",
     "filename": "068_Bob_Graham.jpg",
-    "source_person_id": "068"
+    "source_person_id": "068",
+    "category": "criminal"
   },
   {
     "person_id": "069",
     "name": "Michael Bloomberg",
     "filename": "069_Michael_Bloomberg.jpg",
-    "source_person_id": "069"
+    "source_person_id": "069",
+    "category": "criminal"
   },
   {
     "person_id": "025",
     "name": "Gray Davis",
     "filename": "070_Gray_Davis.jpg",
-    "source_person_id": "070"
+    "source_person_id": "070",
+    "category": "criminal"
   },
   {
     "person_id": "071",
     "name": "Wen Jiabao",
     "filename": "071_Wen_Jiabao.jpg",
-    "source_person_id": "071"
+    "source_person_id": "071",
+    "category": "criminal"
   },
   {
     "person_id": "072",
     "name": "Amelie Mauresmo",
     "filename": "072_Amelie_Mauresmo.jpg",
-    "source_person_id": "072"
+    "source_person_id": "072",
+    "category": "criminal"
   },
   {
     "person_id": "073",
     "name": "Joschka Fischer",
     "filename": "073_Joschka_Fischer.jpg",
-    "source_person_id": "073"
+    "source_person_id": "073",
+    "category": "criminal"
   },
   {
     "person_id": "074",
     "name": "Tiger Woods",
     "filename": "074_Tiger_Woods.jpg",
-    "source_person_id": "074"
+    "source_person_id": "074",
+    "category": "criminal"
   },
   {
     "person_id": "024",
     "name": "Colin Powell",
     "filename": "075_Colin_Powell.jpg",
-    "source_person_id": "075"
+    "source_person_id": "075",
+    "category": "criminal"
   },
   {
     "person_id": "076",
     "name": "John Paul II",
     "filename": "076_John_Paul_II.jpg",
-    "source_person_id": "076"
+    "source_person_id": "076",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "077_George_W_Bush.jpg",
-    "source_person_id": "077"
+    "source_person_id": "077",
+    "category": "criminal"
   },
   {
     "person_id": "078",
     "name": "Pete Sampras",
     "filename": "078_Pete_Sampras.jpg",
-    "source_person_id": "078"
+    "source_person_id": "078",
+    "category": "criminal"
   },
   {
     "person_id": "079",
     "name": "James Kelly",
     "filename": "079_James_Kelly.jpg",
-    "source_person_id": "079"
+    "source_person_id": "079",
+    "category": "criminal"
   },
   {
     "person_id": "059",
     "name": "Ari Fleischer",
     "filename": "080_Ari_Fleischer.jpg",
-    "source_person_id": "080"
+    "source_person_id": "080",
+    "category": "criminal"
   },
   {
     "person_id": "081",
     "name": "Mike Myers",
     "filename": "081_Mike_Myers.jpg",
-    "source_person_id": "081"
+    "source_person_id": "081",
+    "category": "criminal"
   },
   {
     "person_id": "042",
     "name": "Tony Blair",
     "filename": "082_Tony_Blair.jpg",
-    "source_person_id": "082"
+    "source_person_id": "082",
+    "category": "criminal"
   },
   {
     "person_id": "083",
     "name": "Hu Jintao",
     "filename": "083_Hu_Jintao.jpg",
-    "source_person_id": "083"
+    "source_person_id": "083",
+    "category": "criminal"
   },
   {
     "person_id": "084",
     "name": "Holly Hunter",
     "filename": "084_Holly_Hunter.jpg",
-    "source_person_id": "084"
+    "source_person_id": "084",
+    "category": "criminal"
   },
   {
     "person_id": "022",
     "name": "Luiz Inacio Lula da Silva",
     "filename": "085_Luiz_Inacio_Lula_da_Silva.jpg",
-    "source_person_id": "085"
+    "source_person_id": "085",
+    "category": "criminal"
   },
   {
     "person_id": "086",
     "name": "Robert Duvall",
     "filename": "086_Robert_Duvall.jpg",
-    "source_person_id": "086"
+    "source_person_id": "086",
+    "category": "criminal"
   },
   {
     "person_id": "087",
     "name": "Martin McGuinness",
     "filename": "087_Martin_McGuinness.jpg",
-    "source_person_id": "087"
+    "source_person_id": "087",
+    "category": "criminal"
   },
   {
     "person_id": "088",
     "name": "Sourav Ganguly",
     "filename": "088_Sourav_Ganguly.jpg",
-    "source_person_id": "088"
+    "source_person_id": "088",
+    "category": "criminal"
   },
   {
     "person_id": "089",
     "name": "Julianne Moore",
     "filename": "089_Julianne_Moore.jpg",
-    "source_person_id": "089"
+    "source_person_id": "089",
+    "category": "criminal"
   },
   {
     "person_id": "090",
     "name": "Jacques Rogge",
     "filename": "090_Jacques_Rogge.jpg",
-    "source_person_id": "090"
+    "source_person_id": "090",
+    "category": "criminal"
   },
   {
     "person_id": "091",
     "name": "Kurt Warner",
     "filename": "091_Kurt_Warner.jpg",
-    "source_person_id": "091"
+    "source_person_id": "091",
+    "category": "criminal"
   },
   {
     "person_id": "033",
     "name": "Luis Gonzalez Macchi",
     "filename": "092_Luis_Gonzalez_Macchi.jpg",
-    "source_person_id": "092"
+    "source_person_id": "092",
+    "category": "criminal"
   },
   {
     "person_id": "093",
     "name": "Choi Sung-hong",
     "filename": "093_Choi_Sung-hong.jpg",
-    "source_person_id": "093"
+    "source_person_id": "093",
+    "category": "criminal"
   },
   {
     "person_id": "094",
     "name": "Guillermo Coria",
     "filename": "094_Guillermo_Coria.jpg",
-    "source_person_id": "094"
+    "source_person_id": "094",
+    "category": "criminal"
   },
   {
     "person_id": "095",
     "name": "John Allen Muhammad",
     "filename": "095_John_Allen_Muhammad.jpg",
-    "source_person_id": "095"
+    "source_person_id": "095",
+    "category": "criminal"
   },
   {
     "person_id": "020",
     "name": "George W Bush",
     "filename": "096_George_W_Bush.jpg",
-    "source_person_id": "096"
+    "source_person_id": "096",
+    "category": "criminal"
   },
   {
     "person_id": "097",
     "name": "Roh Moo-hyun",
     "filename": "097_Roh_Moo-hyun.jpg",
-    "source_person_id": "097"
+    "source_person_id": "097",
+    "category": "criminal"
   },
   {
     "person_id": "098",
     "name": "Jennifer Lopez",
     "filename": "098_Jennifer_Lopez.jpg",
-    "source_person_id": "098"
+    "source_person_id": "098",
+    "category": "criminal"
   },
   {
     "person_id": "099",
     "name": "David Nalbandian",
     "filename": "099_David_Nalbandian.jpg",
-    "source_person_id": "099"
+    "source_person_id": "099",
+    "category": "criminal"
   },
   {
     "person_id": "100",
     "name": "Bill McBride",
     "filename": "100_Bill_McBride.jpg",
-    "source_person_id": "100"
+    "source_person_id": "100",
+    "category": "criminal"
   },
   {
     "person_id": "039",
     "name": "Bill Clinton",
-    "filename": "Screenshot 2026-08-10 012412.png"
+    "filename": "Screenshot 2026-08-10 012412.png",
+    "category": "criminal"
+  },
+  {
+    "person_id": "test_miss_001",
+    "name": "Test Missing",
+    "filename": "dataset/100_Bill_McBride.jpg",
+    "category": "missing_person"
+  },
+  {
+    "person_id": "test_miss_001",
+    "name": "Test Missing",
+    "filename": "dataset/100_Bill_McBride.jpg",
+    "category": "missing_person"
+  },
+  {
+    "person_id": "test_missing_001",
+    "name": "Test Missing",
+    "filename": "100_Bill_McBride.jpg",
+    "category": "missing_person"
+  },
+  {
+    "person_id": "test_missing_001",
+    "name": "Test Missing",
+    "filename": "100_Bill_McBride.jpg",
+    "category": "missing_person"
+  },
+  {
+    "person_id": "test_missing_001",
+    "name": "Test Missing",
+    "filename": "100_Bill_McBride.jpg",
+    "category": "missing_person"
+  },
+  {
+    "person_id": "test_missing_001",
+    "name": "Test Missing",
+    "filename": "100_Bill_McBride.jpg",
+    "category": "missing_person"
   }
 ]

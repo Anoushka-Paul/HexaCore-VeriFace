@@ -31,3 +31,11 @@ demo_cctv_evidence/
 demo_cctv_results.json
 demo_cctv_review.mp4
 cctv_jobs/
+
+# Generated face index and mapping
+face_index.faiss
+face_mapping.json
+
+# Temporary upload / runtime state
+tmp_register.json
+uploads/

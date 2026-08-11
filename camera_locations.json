@@ -1,0 +1,5 @@
+{
+  "demo_corridor": {"lat": 40.7128, "lng": -74.0060, "label": "Demo Corridor"},
+  "station_1": {"lat": 40.7138, "lng": -74.0050, "label": "Station 1"},
+  "entrance_a": {"lat": 40.7148, "lng": -74.0040, "label": "Entrance A"}
+}

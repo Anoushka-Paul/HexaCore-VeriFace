@@ -1,6 +1,8 @@
 """Shared face-model configuration and input-quality checks for VeriFace."""
 
+import os
 import numpy as np
+from pathlib import Path
 from insightface.app import FaceAnalysis
 
 MODEL_NAME = "buffalo_l"
@@ -12,8 +14,17 @@ MIN_FACE_SIDE_PX = 40
 
 
 def create_face_app(det_size: tuple[int, int] = DET_SIZE) -> FaceAnalysis:
-    """Create the one model configuration used by indexing and search."""
-    app = FaceAnalysis(name=MODEL_NAME, providers=["CPUExecutionProvider"])
+    """Create the one model configuration used by indexing and search.
+
+    The insightface package downloads model files to the user's home by
+    default, which can fail on low-space system drives. Prefer a local
+    project path or an explicit `INSIGHTFACE_ROOT` env var so the models
+    are stored on the project's drive.
+    """
+    root = os.environ.get("INSIGHTFACE_ROOT")
+    if not root:
+        root = str(Path(__file__).parent.resolve() / ".insightface")
+    app = FaceAnalysis(name=MODEL_NAME, root=root, providers=["CPUExecutionProvider"])
     app.prepare(ctx_id=0, det_size=det_size)
     return app
 

@@ -168,7 +168,7 @@ def scan_video(video_path: str, target_embedding: np.ndarray, face_app, args):
 
 def run_cctv_scan(video_path: str, target_path: str, camera_id: str, interval: float,
                   threshold: float, evidence_dir: str, annotated_video: str,
-                  det_size: int = 640, tile_scan: bool = True) -> dict:
+                  det_size: int = 640, tile_scan: bool = True, camera_location: dict | None = None) -> dict:
     """Reusable scanner entrypoint for the CLI and FastAPI upload endpoint."""
     if interval <= 0 or det_size < 160:
         raise ValueError("interval must be positive and det_size must be at least 160")
@@ -179,13 +179,24 @@ def run_cctv_scan(video_path: str, target_path: str, camera_id: str, interval: f
     face_app = create_face_app((det_size, det_size))
     target_embedding = get_target_embedding(face_app, target_path)
     matches, stats = scan_video(video_path, target_embedding, face_app, options)
+    events = group_events(matches, max(interval * 2.5, 1.0))
+    if camera_location is not None:
+        for match in matches:
+            match["camera_location"] = camera_location
+        for event in events:
+            event["camera_location"] = camera_location
     return {
         "schema_version": "2.0",
         "disclaimer": "Candidate matches require human verification; this output does not establish identity.",
-        "input": {"video": video_path, "camera_id": camera_id, "threshold": threshold},
+        "input": {
+            "video": video_path,
+            "camera_id": camera_id,
+            "threshold": threshold,
+            "camera_location": camera_location,
+        },
         "statistics": stats,
         "matches": matches,
-        "events": group_events(matches, max(interval * 2.5, 1.0)),
+        "events": events,
     }
 
 
