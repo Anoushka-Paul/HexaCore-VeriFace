@@ -39,3 +39,11 @@ face_mapping.json
 # Temporary upload / runtime state
 tmp_register.json
 uploads/
+
+# Pretrained sketch models
+sketch_models/pretrain_models/
+
+# Local databases
+veriface_auth.db
+audit.db
+

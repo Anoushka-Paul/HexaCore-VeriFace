@@ -28,6 +28,7 @@ import numpy as np
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from auth_service import auth_app, require_role
 from insightface.app import FaceAnalysis
 from cctv_scan import run_cctv_scan
@@ -64,6 +65,9 @@ app = FastAPI(title="VeriFace Search API")
 # The auth package uses a separate SQLite file for user/case storage,
 # while this root app continues to use audit.db for the face-search audit trail.
 app.mount("/auth", auth_app)
+
+# Mount the dataset static files so the frontend can load suspect images
+app.mount("/dataset", StaticFiles(directory=os.path.join(BASE_DIR, "dataset")), name="dataset")
 
 # NOTE: allow_origins=["*"] is fine for a hackathon demo (any frontend origin
 # can call this API). For a real deployment this should be locked down to the
@@ -396,6 +400,9 @@ async def sketch_search(
         raise HTTPException(status_code=422, detail="style must be 'cufs' or 'cufsf'")
     category = get_valid_category(category)
 
+    import base64
+    converted_base64 = ""
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         sketch_path = Path(tmp_dir) / "sketch.png"
         converted_path = Path(tmp_dir) / "converted.jpg"
@@ -406,12 +413,14 @@ async def sketch_search(
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
         converted_bytes = Path(converted_path).read_bytes()
+        converted_base64 = base64.b64encode(converted_bytes).decode("utf-8")
 
     results = search_image_bytes(converted_bytes, category)
     return {
         "search_type": "sketch",
         "style": style,
         "category": category,
+        "converted_image": f"data:image/jpeg;base64,{converted_base64}",
         "results": results,
     }
 
