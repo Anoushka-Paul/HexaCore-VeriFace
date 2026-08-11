@@ -1,0 +1,7 @@
+# Extra dependencies for sketch_to_photo.py only.
+# Kept separate from the main requirements.txt so the sketch module's
+# (heavier) deps don't affect the rest of the team's setup.
+torch
+torchvision
+pillow
+numpy

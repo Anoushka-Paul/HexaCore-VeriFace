@@ -14,7 +14,7 @@ from typing import List
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 
-from .database import init_db, get_db, User, Case, CaseAuditLink, Person
+from .database import init_db, get_db, SessionLocal, User, Case, CaseAuditLink, Person
 from .models import (
     Token, UserCreate, UserOut, CaseCreate, CaseOut,
     AuditLinkCreate, AuditLinkOut, PersonOut

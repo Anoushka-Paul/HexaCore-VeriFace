@@ -9,7 +9,7 @@ VeriFace helps police reduce the time spent manually cross-referencing suspect s
 ## Features
 
 - **Photo search** — upload a photo and get the top five candidate matches.
-- **Sketch search** — sketch-to-photo conversion is being integrated by the team so generated search images can use the same face-search pipeline.
+- **Sketch search** — hand-drawn sketches are converted into photo-like images and then queried through the same face-search pipeline.
 - **CCTV scanning** — scan recorded footage for frame-level candidates, with evidence crops, timestamps, and an annotated review video.
 - **Missing persons mode** — reuse the search pipeline against a missing-persons database.
 - **Confidence-based verification** — every result remains a human-review candidate.

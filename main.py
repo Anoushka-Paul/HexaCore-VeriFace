@@ -16,6 +16,7 @@ Run with:
 import json
 import os
 import sqlite3
+import tempfile
 import uuid
 from pathlib import Path
 from threading import Lock
@@ -31,6 +32,7 @@ from auth_service import auth_app, require_role
 from insightface.app import FaceAnalysis
 from cctv_scan import run_cctv_scan
 from face_utils import DET_SIZE, MODEL_NAME, create_face_app, normalize_embedding, validate_single_face
+from sketch_models.sketch_to_photo import convert_sketch_to_photo
 
 # Paths are resolved relative to this file's location, not the current
 # working directory — so `uvicorn` works the same regardless of which
@@ -187,6 +189,24 @@ def save_index_and_mapping():
         json.dump(mapping, f, indent=2)
 
 
+def get_valid_category(category: str) -> str:
+    if category not in {"all", "criminal", "missing_person"}:
+        raise HTTPException(status_code=422, detail="category must be 'all', 'criminal', or 'missing_person'")
+    return category
+
+
+def search_image_bytes(contents: bytes, category: str = "all") -> list[dict]:
+    file_bytes = np.frombuffer(contents, dtype=np.uint8)
+    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    if img is None:
+        raise HTTPException(status_code=400, detail="Could not read sketch output as an image")
+    face, reason = validate_single_face(face_app.get(img))
+    if reason:
+        raise HTTPException(status_code=422, detail=reason)
+    query_embedding = normalize_embedding(face.embedding)
+    return serialize_results(query_embedding, category)
+
+
 def job_directory(job_id: str) -> Path:
     if len(job_id) != 32 or any(char not in "0123456789abcdef" for char in job_id):
         raise HTTPException(status_code=404, detail="CCTV job not found")
@@ -246,7 +266,7 @@ def confidence_label(similarity: float) -> str:
         return "no match"
 
 
-def serialize_results(query_embedding: np.ndarray) -> list[dict]:
+def serialize_results(query_embedding: np.ndarray, category: str = "all") -> list[dict]:
     """Group all exact FAISS reference scores into one candidate per person."""
     similarities, indices = index.search(query_embedding, index.ntotal)
     people: dict[str, dict] = {}
@@ -254,10 +274,13 @@ def serialize_results(query_embedding: np.ndarray) -> list[dict]:
         if idx == -1:
             continue
         entry = mapping[idx]
+        entry_category = entry.get("category", "criminal")
+        if category != "all" and entry_category != category:
+            continue
         sim = float(similarity)
         person = people.setdefault(entry["person_id"], {
             "person_id": entry["person_id"], "name": entry["name"],
-            "category": entry.get("category", "criminal"),
+            "category": entry_category,
             "similarity": sim, "best_reference": entry["filename"], "reference_count": 0,
         })
         person["reference_count"] += 1
@@ -265,7 +288,7 @@ def serialize_results(query_embedding: np.ndarray) -> list[dict]:
             person["similarity"] = sim
             person["best_reference"] = entry["filename"]
             # If mapping carries category per reference, update person's category
-            person["category"] = entry.get("category", person.get("category", "criminal"))
+            person["category"] = entry_category
     ranked = sorted(people.values(), key=lambda person: person["similarity"], reverse=True)[:TOP_K]
     for person in ranked:
         person["similarity"] = round(person["similarity"], 4)
@@ -277,12 +300,14 @@ def serialize_results(query_embedding: np.ndarray) -> list[dict]:
 @app.post("/search")
 async def search(
     file: UploadFile = File(...),
+    category: str = Form("all", description="Filter by category: all, criminal, or missing_person"),
     current_user=Depends(require_role("officer", "admin")),
 ):
     if index is None or mapping is None or face_app is None:
         raise HTTPException(status_code=503, detail="Server not ready yet")
 
     contents = await file.read()
+    category = get_valid_category(category)
     file_bytes = np.frombuffer(contents, dtype=np.uint8)
     img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
@@ -294,7 +319,7 @@ async def search(
         log_search(file.filename, None)  # still log failed searches for the audit trail
         raise HTTPException(status_code=422, detail=reason)
     query_embedding = normalize_embedding(face.embedding)
-    results = serialize_results(query_embedding)
+    results = serialize_results(query_embedding, category)
 
     log_search(file.filename, results[0] if results else None)
 
@@ -303,15 +328,16 @@ async def search(
 
 @app.post("/add-person")
 async def add_person(
-    person_id: str = Form(...),
+    person_id: str | None = Form(None, description="Optional person_id. If omitted, a new person ID is generated."),
     name: str = Form(...),
     category: str = Form(..., description="criminal | missing_person"),
     file: UploadFile = File(...),
     current_user=Depends(require_role("admin")),
 ):
     """
-    Adds a new reference to a person. Reusing an existing person_id is allowed
-    when the name matches, so each person can have several reference images.
+    Adds a new person or a new reference image for an existing person.
+    If person_id is omitted, a new person record is created automatically.
+    Reusing an existing person_id is allowed when the name matches.
     """
     if index is None or mapping is None or face_app is None:
         raise HTTPException(status_code=503, detail="Server not ready yet")
@@ -326,15 +352,20 @@ async def add_person(
     face, reason = validate_single_face(face_app.get(img))
     if reason:
         raise HTTPException(status_code=422, detail=reason)
-    # Validate category explicitly
-    if category not in {"criminal", "missing_person"}:
-        raise HTTPException(status_code=422, detail="category must be 'criminal' or 'missing_person'")
+    category = get_valid_category(category)
+    if category == "all":
+        raise HTTPException(status_code=422, detail="category must be 'criminal' or 'missing_person' for add-person")
     embedding = normalize_embedding(face.embedding)
-    # Keep the vector index and its positional mapping atomically aligned.
+
     with index_lock:
-        existing = [entry for entry in mapping if entry["person_id"] == person_id]
-        if existing and any(entry["name"].casefold() != name.casefold() for entry in existing):
-            raise HTTPException(status_code=409, detail=f"person_id '{person_id}' already belongs to '{existing[0]['name']}'")
+        if person_id is None or person_id == "":
+            person_id = uuid.uuid4().hex
+            existing = []
+        else:
+            existing = [entry for entry in mapping if entry["person_id"] == person_id]
+            if existing and any(entry["name"].casefold() != name.casefold() for entry in existing):
+                raise HTTPException(status_code=409, detail=f"person_id '{person_id}' already belongs to '{existing[0]['name']}'")
+
         index.add(embedding)
         mapping.append({
             "person_id": person_id,
@@ -351,6 +382,37 @@ async def add_person(
         "total_people_in_database": len({entry["person_id"] for entry in mapping}),
         "total_reference_images": index.ntotal,
         "reference_count_for_person": len(existing) + 1,
+    }
+
+
+@app.post("/sketch-search")
+async def sketch_search(
+    sketch: UploadFile = File(..., description="Hand-drawn sketch image for conversion and matching"),
+    style: str = Form("cufs", description="Sketch conversion style: cufs or cufsf"),
+    category: str = Form("all", description="Filter by category: all, criminal, or missing_person"),
+    current_user=Depends(require_role("officer", "admin")),
+):
+    if style not in {"cufs", "cufsf"}:
+        raise HTTPException(status_code=422, detail="style must be 'cufs' or 'cufsf'")
+    category = get_valid_category(category)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        sketch_path = Path(tmp_dir) / "sketch.png"
+        converted_path = Path(tmp_dir) / "converted.jpg"
+        await persist_upload(sketch, sketch_path)
+        try:
+            convert_sketch_to_photo(str(sketch_path), str(converted_path), style=style)
+        except (FileNotFoundError, ValueError, RuntimeError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+        converted_bytes = Path(converted_path).read_bytes()
+
+    results = search_image_bytes(converted_bytes, category)
+    return {
+        "search_type": "sketch",
+        "style": style,
+        "category": category,
+        "results": results,
     }
 
 
